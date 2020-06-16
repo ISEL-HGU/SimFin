@@ -3,3 +3,5 @@ commit_vec/*
 word2vec/*
 view_file/*
 models/*
+inputs/*
+eval/*

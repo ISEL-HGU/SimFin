@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
+np.set_printoptions(threshold=np.inf)
 
 # dividing scenario of server and mac
 W2V_DIM = 0
@@ -112,7 +113,8 @@ def write_result_distance(out_file, distances, indices, testY):
             file.write(str(test) + '\n')
         file.write('\n\npredicted answers\n')
         for i in range(len(indices)):
-            if distances[i] < 0.01:
+            # if distances[i] < 0.01:
+            if np.any(distances[i] < 0.010):
                 score += 1
             file.write(str(i) + ': instance:' + str(indices[i]) + ' distance: ' + str(distances[i]) + '\n\n')
         file.close()
@@ -136,6 +138,20 @@ def write_prediction(out_file, testX, testY, classifier):
 def write_predict_proba(out_file, testX, classifier):
     proba = classifier.predict_proba(testX)
     vecs_on_csv(out_file, proba.T)
+    print('writing test on', out_file, 'complete!')
+    return
+
+
+def write_kneighbors(out_file, testX, classifier):
+    score = 0
+    kneighbors = classifier.kneighbors(testX)
+    with open(out_file, 'w') as fp:
+        for i in range(len(kneighbors[0])):
+            if np.any(kneighbors[0][i] < 0.001):
+                score += 1
+            fp.write(str(i) + ': ' + str(kneighbors[0][i]) + ' ' + str(kneighbors[1][i]) + '\n')
+        # fp.write(str(kneighbors))
+    print('score:', score)
     print('writing test on', out_file, 'complete!')
     return
 
@@ -245,49 +261,43 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
     # apply zero padding for fix vector length
     for i in range(len(trainX)):
-        for j in range(train_max - len(trainX[i])):
-            trainX[i].append(0)
-    for i in range(len(testX)):
-        for j in range(test_max - len(testX[i])):
-            testX[i].append(0)
-
-    # if the vec is '' change to 0
-    for i in range(len(trainX)):
         for j in range(len(trainX[i])):
             if trainX[i][j] == '':
                 trainX[i][j] = 0
             else:
                 trainX[i][j] = int(trainX[i][j])
+        for j in range(train_max - len(trainX[i])):
+            trainX[i].append(0)
     for i in range(len(testX)):
         for j in range(len(testX[i])):
             if testX[i][j] == '':
                 testX[i][j] = 0
             else:
                 testX[i][j] = int(testX[i][j])
+        for j in range(test_max - len(testX[i])):
+            testX[i].append(0)
 
-    dim_train = len(trainX[0])
-    dim_test = len(testX[0])
     new_trainX = None
     new_testX = None
 
-    # fixing vec length for train and test set
-    if dim_train >= dim_test:
-        new_trainX = trainX
-        new_testX = np.zeros(shape=(len(testX), len(trainX[0])))
-        for i in range(len(testX)):
-            new_testX[i] = np.concatenate([testX[i], np.zeros(shape=(dim_train - dim_test))])
-
-    if dim_test > dim_train:
-        new_trainX = np.zeros(shape=(len(trainX), len(testX[0])))
-        new_testX = testX
+    # unifying vec length of train and test
+    if train_max >= test_max:
+        new_trainX = np.zeros(shape=(len(trainX), train_max))
         for i in range(len(trainX)):
-            new_trainX[i] = np.concatenate([trainX[i], np.zeros(shape=(dim_test - dim_train))])
+            new_trainX[i] = np.asarray(trainX[i])
+        new_testX = np.zeros(shape=(len(testX), train_max))
+        for i in range(len(testX)):
+            new_testX[i] = np.concatenate([testX[i], np.zeros(shape=(train_max - test_max))])
+    if test_max > train_max:
+        new_trainX = np.zeros(shape=(len(trainX), test_max))
+        new_testX = np.zeros(shape=(len(testX), test_max))
+        for i in range(len(testX)):
+            new_testX[i] = np.asarray(testX[i])
+        for i in range(len(trainX)):
+            new_trainX[i] = np.concatenate([trainX[i], np.zeros(shape=(test_max - train_max))])
 
     f_trainX.close()
     f_testX.close()
-
-    print(train_max)
-    print(test_max)
 
     return new_trainX, trainY.values, new_testX, testY.values
 
@@ -306,10 +316,10 @@ if __name__ == '__main__':
 
     # load Gumtree Vectors
     X_train, Y_train, X_test, Y_test = loadGumVec(
-        './inputs/DataCollector/GVNC_train.csv',
-        './inputs/DataCollector/Y_train.csv',
-        './inputs/DataCollector/GVNC_zookeeper.csv',
-        './inputs/DataCollector/Y_zookeeper.csv'
+        './inputs/apache/GVNC_train.csv',
+        './inputs/apache/Y_train.csv',
+        './inputs/apache/GVNC_calcite.csv',
+        './inputs/apache/Y_calcite.csv'
     )
 
     print(X_train.shape)
@@ -392,20 +402,14 @@ if __name__ == '__main__':
     print('\nX_encoded:', X_train_encoded.shape)
 
     # training encoder + knn classifier
-    knn = KNeighborsClassifier(n_neighbors=1, metric='manhattan', algorithm='auto')
+    knn = KNeighborsClassifier(n_neighbors=10, metric='manhattan', algorithm='auto', weights='distance')
     knn_n_encoder = knn.fit(X_train_encoded, Y_train_label)
-
-    # training Nearest Neighbours for distance
-    # nbrs_vanilla = NearestNeighbors(n_neighbors=1, metric='manhattan', algorithm='auto').fit(X_train)
-    # distances_vnla, indices_vnla = nbrs_vanilla.kneighbors(X_test)
-    nbrs_encoder = NearestNeighbors(n_neighbors=1, metric='manhattan', algorithm='auto').fit(X_train_encoded)
-    distances_encd, indices_encd = nbrs_encoder.kneighbors(X_test_encoded)
 
     ##########################################################################
     # Model Evaluation
 
-    write_result_distance('./eval/encoder_gumvec_dst.txt', distances_encd, indices_encd, Y_test)
-
     write_prediction('./eval/encoder_gumvec_prd.txt', X_test_encoded, Y_test, knn_n_encoder)
+    write_predict_proba('eval/encoder_gumvec_prob.txt', X_test_encoded, knn_n_encoder)
+    write_kneighbors('eval/encoder_gumvec_kneighbors.txt', X_test_encoded, knn_n_encoder)
 
     print('program finished!')
