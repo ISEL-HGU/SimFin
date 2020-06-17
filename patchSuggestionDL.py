@@ -2,6 +2,7 @@ import csv
 from gensim.models import Word2Vec
 from keras.layers import Input, Dense
 from keras.models import Model
+from keras.preprocessing.sequence import pad_sequences
 import logging
 import numpy as np
 import pandas as pd
@@ -260,22 +261,25 @@ def loadGumVec(train_file, train_label, test_file, test_label):
             test_max = len(testX[i])
 
     # apply zero padding for fix vector length
-    for i in range(len(trainX)):
-        for j in range(len(trainX[i])):
-            if trainX[i][j] == '':
-                trainX[i][j] = 0
-            else:
-                trainX[i][j] = int(trainX[i][j])
-        for j in range(train_max - len(trainX[i])):
-            trainX[i].append(0)
-    for i in range(len(testX)):
-        for j in range(len(testX[i])):
-            if testX[i][j] == '':
-                testX[i][j] = 0
-            else:
-                testX[i][j] = int(testX[i][j])
-        for j in range(test_max - len(testX[i])):
-            testX[i].append(0)
+    # for i in range(len(trainX)):
+    #     for j in range(len(trainX[i])):
+    #         if trainX[i][j] == '':
+    #             trainX[i][j] = 0
+    #         else:
+    #             trainX[i][j] = int(trainX[i][j])
+    #     for j in range(train_max - len(trainX[i])):
+    #         trainX[i].append(0)
+    # for i in range(len(testX)):
+    #     for j in range(len(testX[i])):
+    #         if testX[i][j] == '':
+    #             testX[i][j] = 0
+    #         else:
+    #             testX[i][j] = int(testX[i][j])
+    #     for j in range(test_max - len(testX[i])):
+    #         testX[i].append(0)
+
+    trainX = pad_sequences(trainX, padding='post')
+    testX = pad_sequences(testX, padding='post')
 
     new_trainX = None
     new_testX = None
@@ -323,8 +327,8 @@ if __name__ == '__main__':
     )
 
     print(X_train.shape)
-    print(X_train[0].shape)
-
+    print(Y_train.shape)
+    
     # splitting test from one set
     # X_train, X_test, Y_train, Y_test = train_test_split(X_train, Y_train,
     #                                                     test_size=0.005,
