@@ -1,18 +1,12 @@
 import csv
-from keras.preprocessing.text import one_hot
-from keras.preprocessing.sequence import pad_sequences
-from keras.layers import Dense, Flatten, LSTM
-from keras.layers.embeddings import Embedding
-from keras.models import Sequential
-
 import logging
 import numpy as np
 import pandas as pd
-import pickle
-import platform
-from sklearn.model_selection import train_test_split
+
+from keras.layers import Input, LSTM, Dense, RepeatVector
+from keras.models import Model
+from keras.preprocessing.sequence import pad_sequences
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
 
 np.set_printoptions(threshold=np.inf)
@@ -21,43 +15,6 @@ logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(message)s',
     level=logging.INFO
 )
-
-
-def write_result_distance(out_file, distances, indices, testY):
-    score = 0
-    with open(out_file, 'w+') as file:
-        file.write('real answers\n')
-        for test in testY:
-            file.write(str(test) + '\n')
-        file.write('\n\npredicted answers\n')
-        for i in range(len(indices)):
-            # if distances[i] < 0.01:
-            if np.any(distances[i] < 0.010):
-                score += 1
-            file.write(str(i) + ': instance:' + str(indices[i]) + ' distance: ' + str(distances[i]) + '\n\n')
-        file.close()
-    print('writing distances on', out_file, 'complete!')
-    print('score:', score)
-    return
-
-
-def write_prediction(out_file, testX, testY, classifier):
-    with open(out_file, 'w+') as file:
-        file.write('real answers\n')
-        for test in testY:
-            file.write(str(test) + '\n')
-        file.write('\n\npredicted answers\n')
-        for yhat in classifier.predict(testX):
-            file.write(yhat + '\n\n')
-        file.close()
-        print('writing predictions on', out_file, 'complete!')
-
-
-def write_predict_proba(out_file, testX, classifier):
-    proba = classifier.predict_proba(testX)
-    vecs_on_csv(out_file, proba.T)
-    print('writing test on', out_file, 'complete!')
-    return
 
 
 def write_kneighbors(out_file, testX, classifier):
@@ -74,39 +31,72 @@ def write_kneighbors(out_file, testX, classifier):
     return
 
 
-def read_commits(input_file):
-    """
-    Parses each commits from corpus and returns info.
+def loadGumVec(train_file, train_label, test_file, test_label):
+    f_trainX = open(train_file, 'r')
+    trainX = csv.reader(f_trainX)
+    f_testX = open(test_file, 'r')
+    testX = csv.reader(f_testX)
 
-    Args:   input_file      (string):          file name of commit corpus
+    trainX = np.asarray(list(trainX))
+    trainY = pd.read_csv(train_label)
+    testX = np.asarray(list(testX))
+    testY = pd.read_csv(test_label)
 
-    Returns:
-            commit_list     (list of string):  commits(list of string),
-            commit_count    (int):             total number of counts,
-            longest_len     (int):             length of longest commit
-    """
+    train_max = 0
+    test_max = 0
 
-    commit_corpus_file = open(input_file, 'r')
-    commit_list = []
-    is_start = False
-    a_commit = ""
-    commit_count = 0
-    longest_len = 0
+    # get the max length of vecs
+    for i in range(len(trainX)):
+        if train_max < len(trainX[i]):
+            train_max = len(trainX[i])
+    for i in range(len(testX)):
+        if test_max < len(testX[i]):
+            test_max = len(testX[i])
 
-    for line in commit_corpus_file:
-        if line.startswith('<SOC>'):
-            is_start = True
-        if is_start:
-            a_commit += line
-        if line.startswith('<EOC>'):
-            commit_list.append(a_commit)
-            if len(a_commit.split()) > longest_len:
-                longest_len = len(a_commit.split())
-            a_commit = ""
-            commit_count += 1
-            is_start = False
+    # apply zero padding for fix vector length
+    # for i in range(len(trainX)):
+    #     for j in range(len(trainX[i])):
+    #         if trainX[i][j] == '':
+    #             trainX[i][j] = 0
+    #         else:
+    #             trainX[i][j] = int(trainX[i][j])
+    #     for j in range(train_max - len(trainX[i])):
+    #         trainX[i].append(0)
+    # for i in range(len(testX)):
+    #     for j in range(len(testX[i])):
+    #         if testX[i][j] == '':
+    #             testX[i][j] = 0
+    #         else:
+    #             testX[i][j] = int(testX[i][j])
+    #     for j in range(test_max - len(testX[i])):
+    #         testX[i].append(0)
 
-    return commit_list, commit_count, longest_len
+    trainX = pad_sequences(trainX, padding='post')
+    testX = pad_sequences(testX, padding='post')
+
+    new_trainX = None
+    new_testX = None
+
+    # unifying vec length of train and test
+    if train_max >= test_max:
+        new_trainX = np.zeros(shape=(len(trainX), train_max))
+        for i in range(len(trainX)):
+            new_trainX[i] = np.asarray(trainX[i])
+        new_testX = np.zeros(shape=(len(testX), train_max))
+        for i in range(len(testX)):
+            new_testX[i] = np.concatenate([testX[i], np.zeros(shape=(train_max - test_max))])
+    if test_max > train_max:
+        new_trainX = np.zeros(shape=(len(trainX), test_max))
+        new_testX = np.zeros(shape=(len(testX), test_max))
+        for i in range(len(testX)):
+            new_testX[i] = np.asarray(testX[i])
+        for i in range(len(trainX)):
+            new_trainX[i] = np.concatenate([trainX[i], np.zeros(shape=(test_max - train_max))])
+
+    f_trainX.close()
+    f_testX.close()
+
+    return new_trainX, trainY.values, new_testX, testY.values
 
 
 if __name__ == '__main__':
@@ -114,57 +104,56 @@ if __name__ == '__main__':
     # DATA PREPARATION
 
     # load commit String
-    X_train, train_count, train_max = read_commits('inputs/string/S_train.txt')
-    X_test, test_count, test_max = read_commits('inputs/string/S_calcite.txt')
-    Y_train = pd.read_csv('inputs/string/YS_train.csv').values
-    Y_train = pd.read_csv('inputs/string/YS_calcite.csv').values
+    X_train, Y_train, X_test, Y_test = loadGumVec(
+        './inputs/apache/GVNC_train.csv',
+        './inputs/apache/Y_train.csv',
+        './inputs/apache/GVNC_calcite.csv',
+        './inputs/apache/Y_calcite.csv'
+    )
 
-    # pre-settings for LSTM model
-    vocab_size = 5000
-    encoded_train = [one_hot(d, vocab_size) for d in X_train]
-    encoded_test = [one_hot(d, vocab_size) for d in X_test]
+    scaler = MinMaxScaler()
+    scaler.fit(X_train)
 
-    print(np.array(X_train).shape)
-    print(np.array(encoded_train).shape)
-    print(np.array(X_test).shape)
-    print(np.array(encoded_test).shape)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
 
-    # defining the model
-    lstm = Sequential()
-    lstm.add(Embedding(vocab_size, 512, input_length=None))
-    lstm.add(LSTM(1024))
-    lstm.add(Dense(1, activation='sigmoid'))
-    lstm.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(lstm.summary())
-    # lstm.fit(encoded_train, Y_train, verbose=1)
+    input_num = X_train.shape[0]
+    time_step = X_train.shape[1]
+    input_dim = 1
+    latent_dim = 100
+    X_train = np.reshape(X_train, (input_num, time_step, input_dim))
+    X_test = np.reshape(X_test, (X_test.shape[0], time_step, input_dim))
 
+    print(X_train.shape)
+    print(X_test.shape)
+    print(input_num)
+    print(time_step)
 
-    # Y_train_label = Y_train[:, 1]
-    #
-    # # training autoencoder
-    # autoencoder = Model(input_commit, decoded)
-    # autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
-    #
-    # autoencoder.fit(X_train, X_train, epochs=15, batch_size=256, shuffle=True)
-    #
-    # T_autoencoder = autoencoder
-    # T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)
-    #
-    # # encoding dataset
-    # X_train_encoded = T_encoder.predict(X_train)
-    # X_test_encoded = T_encoder.predict(X_test)
-    #
-    # print('\nX_encoded:', X_train_encoded.shape)
-    #
-    # # training encoder + knn classifier
-    # knn = KNeighborsClassifier(n_neighbors=10, metric='manhattan', algorithm='auto', weights='distance')
-    # knn_n_encoder = knn.fit(X_train_encoded, Y_train_label)
-    #
-    # ##########################################################################
-    # # Model Evaluation
-    #
-    # write_prediction('./eval/lstm_gumvec_prd.txt', X_test_encoded, Y_test, knn_n_encoder)
-    # write_predict_proba('eval/lstm_gumvec_prob.txt', X_test_encoded, knn_n_encoder)
-    # write_kneighbors('eval/lstm_gumvec_kneighbors.txt', X_test_encoded, knn_n_encoder)
+    inputs = Input(shape=(time_step, input_dim))
+    encoded = LSTM(latent_dim, name='encoder')(inputs)
+
+    decoded = RepeatVector(time_step)(encoded)
+    decoded = LSTM(input_dim, return_sequences=True)(decoded)
+
+    auto = Model(inputs, decoded)
+    encoder = Model(inputs, encoded)
+
+    auto.compile(optimizer='adadelta', loss='binary_crossentropy')
+    auto.fit(X_train, X_train, batch_size=512, epochs=1, verbose=1)
+
+    T_autoencoder = auto
+    T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)
+
+    X_train_encoded = T_encoder.predict(X_train)
+    X_test_encoded = T_encoder.predict(X_test)
+
+    # training encoder + knn classifier
+    knn = KNeighborsClassifier(n_neighbors=10, metric='manhattan', algorithm='auto', weights='distance')
+    knn_n_encoder = knn.fit(X_train_encoded, Y_train)
+
+    ##########################################################################
+    # Model Evaluation
+
+    write_kneighbors('eval/lstm_gumvec_kneighbors.txt', X_test_encoded, knn_n_encoder)
 
     print('program finished!')
