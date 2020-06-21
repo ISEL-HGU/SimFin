@@ -149,13 +149,13 @@ def read_commits(input_file):
     longest_len = 0
 
     for line in commit_corpus_file:
-        if(line.startswith('<start>')):
+        if line.startswith('<start>'):
             is_start = True
-        if(is_start):
+        if is_start:
             a_commit += line
-        if(line.startswith('<end>')):
+        if line.startswith('<end>'):
             commit_list.append(a_commit.split())
-            if(len(a_commit.split()) > longest_len):
+            if len(a_commit.split()) > longest_len:
                 longest_len = len(a_commit.split())
             a_commit = ""
             commit_count += 1

@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from keras.layers import Input, LSTM, Dense, RepeatVector
+from keras.layers import Input, LSTM, Dense, RepeatVector, CuDNNLSTM
 from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.neighbors import KNeighborsClassifier
