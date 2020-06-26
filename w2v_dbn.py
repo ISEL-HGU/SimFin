@@ -1,17 +1,12 @@
-from abc import ABCMeta, abstractmethod
 import csv
 from gensim.models import Word2Vec
-from gensim.test.utils import get_tmpfile
-import gzip
 import logging
 import numpy as np
 import pandas as pd
 import pickle
 import platform
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.pipeline import Pipeline
-
 
 # dividing scenario of server and mac
 HIDDEN_LAYER = []
@@ -20,30 +15,30 @@ EPOCH_RBM = 0
 BATCH_SIZE = 0
 if platform.system() == 'Linux':
     from dbn.tensorflow import UnsupervisedDBN
+
     HIDDEN_LAYER = [100] * 10
     W2V_DIM = 10
     EPOCH_RBM = 5
     BATCH_SIZE = 32
 else:
     from dbn import UnsupervisedDBN
+
     HIDDEN_LAYER = [32, 16]
     W2V_DIM = 1
     EPOCH_RBM = 3
     BATCH_SIZE = 512
-
 
 logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(message)s',
     level=logging.INFO
 )
 
-# Global variable: the size of word2vector
-
 
 class W2VModel:
     def __init__(self, commits, file_path):
         self.commits = commits
         self.file_path = file_path
+        self.model = None
 
     def saveW2V(self):
         model = Word2Vec(self.commits,
@@ -72,15 +67,13 @@ class CommitVectors:
         self.commits = commits
         self.commit_count = commit_count
         self.longest_len = longest_len
+        self.vectorized_commits = None
 
     def vectorize_commits(self, wv):
         """
         Vectorizes the commit corpus w.r.t. w2v model
 
         Args:
-                commit_list     (list of string):  commits(list of string), 
-                commit_count    (int):             total number of counts,
-                longest_len     (int):             length of longest commit
                 wv              (w2v model):       w2v trained from corpus
 
         Returns vectorized_commits ([commit_count][longest_len][1])
@@ -120,11 +113,11 @@ class CommitVectors:
         return cvs
 
 
-def write_test_result(out_file, X_test, Y_test, classifier):
-    with open(out_file, 'w+') as f:
-        for yhat in classifier.predict(X_test):
-            f.write(yhat + '\n\n')
-        f.close()
+def write_test_result(out_file, testX, classifier):
+    with open(out_file, 'w+') as file:
+        for yhat in classifier.predict(testX):
+            file.write(yhat + '\n\n')
+        file.close()
     print('writing test on', out_file, 'complete!')
     return
 
@@ -164,11 +157,11 @@ def read_commits(input_file):
     return commit_list, commit_count, longest_len
 
 
-def vecs_on_csv(filePath, X_dbn):
+def vecs_on_csv(filePath, dbnX):
     # writing out the features learned by dbn on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f'+str(i) for i in range(X_dbn.shape[1])])
+    df = pd.DataFrame(data=dbnX[0:][0:],
+                      index=[i for i in range(dbnX.shape[0])],
+                      columns=['f' + str(i) for i in range(dbnX.shape[1])])
     df.to_csv(filePath)
     return
 
@@ -231,7 +224,7 @@ if __name__ == '__main__':
 
         wr.writerows(X_train)
 
-    with open('./view_file/X_test.csv','+w') as f:
+    with open('./view_file/X_test.csv', '+w') as f:
         wr = csv.writer(f, dialect='excel')
         wr.writerows(X_test)
 
@@ -245,7 +238,7 @@ if __name__ == '__main__':
                                        n_epochs_rbm=EPOCH_RBM,
                                        activation_function='sigmoid',
                                        verbose=True)
-    
+
     X_dbn = unsupervised_dbn.fit_transform(X_train)
     X_dbn_test = unsupervised_dbn.fit_transform(X_test)
 
@@ -266,10 +259,9 @@ if __name__ == '__main__':
     print('X_test after dbn:', X_dbn_test.shape)
     print('Y_test: ', Y_test.shape)
 
-    write_test_result('./eval/dbn_eval.txt', X_dbn_test, Y_test, dbn_n_knn)
+    write_test_result('./eval/dbn_eval.txt', X_dbn_test, dbn_n_knn)
 
     print('program finished!')
-
 
 # @misc{DBNAlbert,
 #     title={A Python implementation of Deep Belief Networks built upon

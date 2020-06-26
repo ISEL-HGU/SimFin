@@ -20,10 +20,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb04d6ff-f972-4ac2-a4ff-99907d03f4ff" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/LSTM_String.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/gv_lstm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LSTM_String.py" beforeDir="false" afterPath="$PROJECT_DIR$/string_lstm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/w2v_dbn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/patchSuggestionDL.py" beforeDir="false" afterPath="$PROJECT_DIR$/gv_ae.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,8 +58,8 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.LSTM_String">
-    <configuration name="LSTM" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.string_lstm">
+    <configuration name="gv_lstm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PatchSuggestion" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -69,7 +71,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/LSTM.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/gv_lstm.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -78,7 +80,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="LSTM_String" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="string_lstm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PatchSuggestion" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -90,7 +92,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/LSTM_String.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/string_lstm.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -101,8 +103,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.LSTM_String" />
-        <item itemvalue="Python.LSTM" />
+        <item itemvalue="Python.string_lstm" />
+        <item itemvalue="Python.gv_lstm" />
       </list>
     </recent_temporary>
   </component>
@@ -143,37 +145,37 @@
       <screen x="-2560" y="-501" width="2560" height="1440" />
     </state>
     <state x="-2212" y="28" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591226749284" />
-    <state width="2539" height="496" key="GridCell.Tab.0.bottom" timestamp="1592744281581">
+    <state width="2539" height="496" key="GridCell.Tab.0.bottom" timestamp="1592744682303">
       <screen x="-2560" y="-357" width="2560" height="1440" />
     </state>
-    <state width="2539" height="496" key="GridCell.Tab.0.bottom/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744281581" />
+    <state width="2539" height="496" key="GridCell.Tab.0.bottom/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744682303" />
     <state width="1259" height="383" key="GridCell.Tab.0.bottom/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591430697829" />
     <state width="1259" height="94" key="GridCell.Tab.0.bottom/0.0.1440.900/-564.-1440.2560.1440@-564.-1440.2560.1440" timestamp="1591774003264" />
     <state width="1259" height="415" key="GridCell.Tab.0.bottom/0.0.1440.900/-687.-1440.2560.1440@-687.-1440.2560.1440" timestamp="1590964118793" />
     <state width="1419" height="238" key="GridCell.Tab.0.bottom/0.0.1440.900/-687.-1440.2560.1440@0.0.1440.900" timestamp="1590539287857" />
     <state width="1419" height="320" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1592399149610" />
-    <state width="2539" height="496" key="GridCell.Tab.0.center" timestamp="1592744281580">
+    <state width="2539" height="496" key="GridCell.Tab.0.center" timestamp="1592744682302">
       <screen x="-2560" y="-357" width="2560" height="1440" />
     </state>
-    <state width="2539" height="496" key="GridCell.Tab.0.center/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744281580" />
+    <state width="2539" height="496" key="GridCell.Tab.0.center/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744682302" />
     <state width="1259" height="383" key="GridCell.Tab.0.center/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591430697828" />
     <state width="1259" height="94" key="GridCell.Tab.0.center/0.0.1440.900/-564.-1440.2560.1440@-564.-1440.2560.1440" timestamp="1591774003264" />
     <state width="1259" height="415" key="GridCell.Tab.0.center/0.0.1440.900/-687.-1440.2560.1440@-687.-1440.2560.1440" timestamp="1590964118792" />
     <state width="1419" height="238" key="GridCell.Tab.0.center/0.0.1440.900/-687.-1440.2560.1440@0.0.1440.900" timestamp="1590539287856" />
     <state width="1419" height="320" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1592399149610" />
-    <state width="2539" height="496" key="GridCell.Tab.0.left" timestamp="1592744281580">
+    <state width="2539" height="496" key="GridCell.Tab.0.left" timestamp="1592744682302">
       <screen x="-2560" y="-357" width="2560" height="1440" />
     </state>
-    <state width="2539" height="496" key="GridCell.Tab.0.left/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744281580" />
+    <state width="2539" height="496" key="GridCell.Tab.0.left/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744682302" />
     <state width="1259" height="383" key="GridCell.Tab.0.left/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591430697827" />
     <state width="1259" height="94" key="GridCell.Tab.0.left/0.0.1440.900/-564.-1440.2560.1440@-564.-1440.2560.1440" timestamp="1591774003263" />
     <state width="1259" height="415" key="GridCell.Tab.0.left/0.0.1440.900/-687.-1440.2560.1440@-687.-1440.2560.1440" timestamp="1590964118791" />
     <state width="1419" height="238" key="GridCell.Tab.0.left/0.0.1440.900/-687.-1440.2560.1440@0.0.1440.900" timestamp="1590539287855" />
     <state width="1419" height="320" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1592399149609" />
-    <state width="2539" height="496" key="GridCell.Tab.0.right" timestamp="1592744281581">
+    <state width="2539" height="496" key="GridCell.Tab.0.right" timestamp="1592744682302">
       <screen x="-2560" y="-357" width="2560" height="1440" />
     </state>
-    <state width="2539" height="496" key="GridCell.Tab.0.right/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744281581" />
+    <state width="2539" height="496" key="GridCell.Tab.0.right/0.0.1440.900/-2560.-357.2560.1440@-2560.-357.2560.1440" timestamp="1592744682302" />
     <state width="1259" height="383" key="GridCell.Tab.0.right/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591430697828" />
     <state width="1259" height="94" key="GridCell.Tab.0.right/0.0.1440.900/-564.-1440.2560.1440@-564.-1440.2560.1440" timestamp="1591774003264" />
     <state width="1259" height="415" key="GridCell.Tab.0.right/0.0.1440.900/-687.-1440.2560.1440@-687.-1440.2560.1440" timestamp="1590964118793" />

@@ -1,5 +1,4 @@
 import csv
-from gensim.models import Word2Vec
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
@@ -7,11 +6,9 @@ import logging
 import numpy as np
 import pandas as pd
 import pickle
-import platform
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
+
 np.set_printoptions(threshold=np.inf)
 
 
@@ -66,24 +63,6 @@ def loadGumVec(train_file, train_label, test_file, test_label):
         if test_max < len(testX[i]):
             test_max = len(testX[i])
 
-    # apply zero padding for fix vector length
-    # for i in range(len(trainX)):
-    #     for j in range(len(trainX[i])):
-    #         if trainX[i][j] == '':
-    #             trainX[i][j] = 0
-    #         else:
-    #             trainX[i][j] = int(trainX[i][j])
-    #     for j in range(train_max - len(trainX[i])):
-    #         trainX[i].append(0)
-    # for i in range(len(testX)):
-    #     for j in range(len(testX[i])):
-    #         if testX[i][j] == '':
-    #             testX[i][j] = 0
-    #         else:
-    #             testX[i][j] = int(testX[i][j])
-    #     for j in range(test_max - len(testX[i])):
-    #         testX[i].append(0)
-
     trainX = pad_sequences(trainX, padding='post')
     testX = pad_sequences(testX, padding='post')
 
@@ -112,17 +91,17 @@ def loadGumVec(train_file, train_label, test_file, test_label):
     return new_trainX, trainY.values, new_testX, testY.values
 
 
+def write_pickle(src, filePath):
+    file = open(filePath, 'wb')
+    pickle.dump(src, file)
+    file.close()
+    print('writing on', filePath, 'complete!')
+    return
+
+
 if __name__ == '__main__':
     ##########################################################################
     # DATA PREPARATION
-
-    # # load vectors using word2vec
-    # X_train, Y_train, X_test, Y_test = loadW2V(
-    #     './inputs/old/100_code.txt',
-    #     './inputs/old/math_code.txt',
-    #     './inputs/old/100_math_code.txt',
-    #     './inputs/old/100_label.csv',
-    #     './inputs/old/math_label.csv')
 
     # load Gumtree Vectors
     X_train, Y_train, X_test, Y_test = loadGumVec(
@@ -135,10 +114,6 @@ if __name__ == '__main__':
     print(X_train.shape)
     print(Y_train.shape)
     
-    # splitting test from one set
-    # X_train, X_test, Y_train, Y_test = train_test_split(X_train, Y_train,
-    #                                                     test_size=0.005,
-    #                                                     random_state=0)
     Y_train_label = Y_train[:, 1]
 
     ##########################################################################
@@ -205,6 +180,9 @@ if __name__ == '__main__':
     X_train_encoded = T_encoder.predict(X_train)
     X_test_encoded = T_encoder.predict(X_test)
 
+    write_pickle(autoencoder, './models/ae.model')
+    write_pickle(T_encoder, './models/encoder.model')
+
     # wrting encoded dataset for checking
     vecs_on_csv('./view_file/train_encoded.csv', X_train_encoded)
     vecs_on_csv('./view_file/test_encoded.csv', X_test_encoded)
@@ -214,6 +192,8 @@ if __name__ == '__main__':
     # training encoder + knn classifier
     knn = KNeighborsClassifier(n_neighbors=10, metric='manhattan', algorithm='auto', weights='distance')
     knn_n_encoder = knn.fit(X_train_encoded, Y_train_label)
+
+    write_pickle(knn_n_encoder, './models/knn.model')
 
     ##########################################################################
     # Model Evaluation
