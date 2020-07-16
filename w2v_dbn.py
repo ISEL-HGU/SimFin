@@ -117,7 +117,6 @@ def write_test_result(out_file, testX, classifier):
     with open(out_file, 'w+') as file:
         for yhat in classifier.predict(testX):
             file.write(yhat + '\n\n')
-        file.close()
     print('writing test on', out_file, 'complete!')
     return
 
