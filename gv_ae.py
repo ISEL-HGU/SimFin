@@ -267,8 +267,8 @@ def run_train(X_train, Y_train, train):
     ##########################################################################
     # DATA PREPARATION
 
-    print('original X_train.shape' + X_train.shape)
-    print('original Y_train.shape' + Y_train.shape)
+    print('original X_train.shape: ', X_train.shape)
+    print('original Y_train.shape: ', Y_train.shape)
 
     Y_train_label = Y_train[:, 8]
 
@@ -409,8 +409,8 @@ def main(argv):
         './output/testset/Y_' + test_name + '.csv'
     )
 
-    print('after load trainX.shape: ' + trainX.shape)
-    print('after load testX.shape: ' + testX.shape)
+    print('after load trainX.shape: ', trainX.shape)
+    print('after load testX.shape: ', testX.shape)
 
     if is_train:
         run_train(trainX, trainY, train_name)
