@@ -277,11 +277,11 @@ def run_train(X_train, Y_train, train):
     # Model Preparation
 
     # Applying minmax scaler to instances
-    # scaler = MinMaxScaler()
-    # scaler.fit(X_train)
-    #
-    # write_pickle(scaler, './PatchSuggestion/models/' + train + '_scaler.pkl')
-    # X_train = scaler.transform(X_train)
+    scaler = MinMaxScaler()
+    scaler.fit(X_train)
+
+    write_pickle(scaler, './PatchSuggestion/models/' + train + '_scaler.pkl')
+    X_train = scaler.transform(X_train)
 
     print('\noriginal train data X (vectorized): ', X_train.shape)
 
@@ -353,9 +353,9 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     # loading models
     encoder = load_model('./PatchSuggestion/models/' + train + '_encoder.model', compile=False)
     knn = load_pickle('./PatchSuggestion/models/' + train + '_knn.model')
-    # scaler = load_pickle('./PatchSuggestion/models/' + train + '_scaler.pkl')
-    #
-    # X_test = scaler.transform(X_test)
+    scaler = load_pickle('./PatchSuggestion/models/' + train + '_scaler.pkl')
+
+    X_test = scaler.transform(X_test)
 
     # encoding test set through learned encoder
     X_test_encoded = encoder.predict(X_test)
