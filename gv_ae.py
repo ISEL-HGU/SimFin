@@ -89,7 +89,6 @@ def write_result(trainY, testY, out_file, testX, classifier):
         csv_writer.writerow(header)
 
         # writing each row values (test * (predicted * k_keighbors))
-        print(len(testY))
         for i in range(len(testY)):
             # witing real answer (y)
             y_project = testY[i][9]
@@ -268,8 +267,8 @@ def run_train(X_train, Y_train, train):
     ##########################################################################
     # DATA PREPARATION
 
-    print(X_train.shape)
-    print(Y_train.shape)
+    print('original X_train.shape' + X_train.shape)
+    print('original Y_train.shape' + Y_train.shape)
 
     Y_train_label = Y_train[:, 8]
 
@@ -337,8 +336,7 @@ def run_train(X_train, Y_train, train):
                                metric='manhattan',
                                algorithm='auto',
                                weights='distance')
-    print(X_train_encoded)
-    print(Y_train_label)
+
     knn.fit(X_train_encoded.astype(str), Y_train_label)
 
     write_pickle(knn, './PatchSuggestion/models/' + train + '_knn.model')
@@ -411,8 +409,8 @@ def main(argv):
         './output/testset/Y_' + test_name + '.csv'
     )
 
-    print(trainX.shape)
-    print(testX.shape)
+    print('after load trainX.shape: ' + trainX.shape)
+    print('after load testX.shape: ' + testX.shape)
 
     if is_train:
         run_train(trainX, trainY, train_name)
