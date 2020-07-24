@@ -75,7 +75,7 @@ def write_test_result(out_file, testX, classifier):
 def write_result(trainY, testY, out_file, testX, classifier):
     kneibors = classifier.kneighbors(testX)
     predictions = classifier.predict(testX)
-
+    is_too_long = False
     with open(out_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',')
 
@@ -89,6 +89,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
         csv_writer.writerow(header)
 
         # writing each row values (test * (predicted * k_keighbors))
+        print(len(testY))
         for i in range(len(testY)):
             # witing real answer (y)
             y_project = testY[i][9]
@@ -100,18 +101,21 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bfc_path_before = testY[i][5]
 
             # getting hunks by command line
-            y_bic_stream = os.popen('cd ../BugPatchCollector/apacheBIC/reference/repositories/' + y_project + ' ; '
+            y_bic_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bic_sha + ' ; '
-                                    'git diff ' + y_bic_sha + '~ ' + y_bic_path_before)
+                                    'git diff ' + y_bic_sha + '~ ' + y_bic_path)
             y_bic_hunk = y_bic_stream.read()
 
-            y_bfc_stream = os.popen('cd ../BugPatchCollector/apacheBIC/reference/repositories/' + y_project + ' ; '
+            y_bfc_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bfc_sha + ' ; '
-                                    'git diff ' + y_bfc_sha + '~ ' + y_bfc_path_before)
+                                    'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
             y_bfc_hunk = y_bfc_stream.read()
 
-            instance = [y_bic_sha, y_bic_path, y_bic_hunk,
-                        y_bfc_sha, y_bfc_path, y_bfc_hunk]
+            if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
+                is_too_long = True
+
+            instance = [str(y_bic_sha), str(y_bic_path), str(y_bic_hunk),
+                        str(y_bfc_sha), str(y_bfc_path), str(y_bfc_hunk)]
 
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
@@ -125,20 +129,26 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 yhat_bfc_path_before = trainY[pred_idx][5]
 
                 # getting hunks by command line
-                yhat_bic_stream = os.popen('cd ../BugPatchCollector/apacheBIC/reference/repositories/'
+                yhat_bic_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bic_sha + ' ; '
-                                           'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path_before)
+                                           'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
                 yhat_bic_hunk = yhat_bic_stream.read()
 
-                yhat_bfc_stream = os.popen('cd ../BugPatchCollector/apacheBIC/reference/repositories/'
+                yhat_bfc_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bfc_sha + ' ; '
-                                           'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path_before)
+                                           'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
                 yhat_bfc_hunk = yhat_bfc_stream.read()
 
-                instance += [yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
-                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
+                if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
+                    is_too_long = True
+
+                instance += [str(yhat_bic_sha), str(yhat_bic_path), str(yhat_bic_hunk),
+                             str(yhat_bfc_sha), str(yhat_bfc_path), str(yhat_bfc_hunk)]
+            if is_too_long:
+                is_too_long = False
+                continue
             csv_writer.writerow(instance)
 
 
@@ -261,17 +271,17 @@ def run_train(X_train, Y_train, train):
     print(X_train.shape)
     print(Y_train.shape)
 
-    Y_train_label = Y_train[:, 9]
+    Y_train_label = Y_train[:, 8]
 
     ##########################################################################
     # Model Preparation
 
     # Applying minmax scaler to instances
-    scaler = MinMaxScaler()
-    scaler.fit(X_train)
-
-    write_pickle(scaler, './models/' + train + '_scaler.pkl')
-    X_train = scaler.transform(X_train)
+    # scaler = MinMaxScaler()
+    # scaler.fit(X_train)
+    #
+    # write_pickle(scaler, './PatchSuggestion/models/' + train + '_scaler.pkl')
+    # X_train = scaler.transform(X_train)
 
     print('\noriginal train data X (vectorized): ', X_train.shape)
 
@@ -307,7 +317,7 @@ def run_train(X_train, Y_train, train):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=1, batch_size=512, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=15, batch_size=512, shuffle=True)
 
     T_autoencoder = autoencoder
     T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)
@@ -315,10 +325,10 @@ def run_train(X_train, Y_train, train):
     # encoding dataset
     X_train_encoded = T_encoder.predict(X_train)
 
-    T_encoder.save('./models/' + train + '_encoder.model', include_optimizer=True)
+    T_encoder.save('./PatchSuggestion/models/' + train + '_encoder.model', include_optimizer=True)
 
     # wrting encoded dataset for checking
-    vecs_on_csv('./view_file/train_encoded.csv', X_train_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/train_encoded.csv', X_train_encoded)
 
     print('\nX_encoded:', X_train_encoded.shape)
 
@@ -327,9 +337,11 @@ def run_train(X_train, Y_train, train):
                                metric='manhattan',
                                algorithm='auto',
                                weights='distance')
-    knn.fit(X_train_encoded, Y_train_label)
+    print(X_train_encoded)
+    print(Y_train_label)
+    knn.fit(X_train_encoded.astype(str), Y_train_label)
 
-    write_pickle(knn, './models/' + train + '_knn.model')
+    write_pickle(knn, './PatchSuggestion/models/' + train + '_knn.model')
 
     return
 
@@ -339,24 +351,24 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     # Model Evaluation
 
     # loading models
-    encoder = load_model('./models/' + train + '_encoder.model', compile=False)
-    knn = load_pickle('./models/' + train + '_knn.model')
-    scaler = load_pickle('./models/' + train + '_scaler.pkl')
-
-    X_test = scaler.transform(X_test)
+    encoder = load_model('./PatchSuggestion/models/' + train + '_encoder.model', compile=False)
+    knn = load_pickle('./PatchSuggestion/models/' + train + '_knn.model')
+    # scaler = load_pickle('./PatchSuggestion/models/' + train + '_scaler.pkl')
+    #
+    # X_test = scaler.transform(X_test)
 
     # encoding test set through learned encoder
     X_test_encoded = encoder.predict(X_test)
 
     # wrting encoded testset for checking
-    vecs_on_csv('./view_file/test_encoded.csv', X_test_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/test_encoded.csv', X_test_encoded)
 
     # writing the result of knn prediction
-    write_kneighbors('./eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
-    write_test_result('./eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
+    write_kneighbors('./PatchSuggestion/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
+    write_test_result('./PatchSuggestion/eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
     write_result(Y_train,
                  Y_test,
-                 './eval/' + test + '_result.csv',
+                 './PatchSuggestion/eval/' + test + '_result.csv',
                  X_test_encoded,
                  knn)
 
@@ -365,11 +377,11 @@ def run_predict(X_test, Y_test, Y_train, test, train):
 
 def main(argv):
     global K_NEIGHBORS
-    train_name = 'train'
-    test_name = ''
+    train_name = ''
+    test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "hptk:i:", ["help", "predict", "train", "k_neighbors", "input"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:", ["help", "train", "k_neighbors", "predict"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -379,24 +391,28 @@ def main(argv):
         if o in ("-h", "--help"):
             print("")
             sys.exit()
+        elif o in ("-t", "--train"):
+            train_name = a
+            if a == 'train':
+                is_train = True
+        elif o in ("-k", "--k_neighbors"):
+            K_NEIGHBORS = int(a)
         elif o in ("-p", "--predict"):
             is_predict = True
-        elif o in ("-t", "--train"):
-            is_train = True
-        elif o in ("-k", "--k_neighbors"):
-            K_NEIGHBORS = a
-        elif o in ("-i", "--input"):
             test_name = a
         else:
             assert False, "unhandled option"
 
     # load Gumtree Vectors
     trainX, trainY, testX, testY = loadGumVec(
-        './inputs/test/GVNC_' + train_name + '.csv',
-        './inputs/test/Y_' + train_name + '.csv',
-        './inputs/test/GVNC_' + test_name + '.csv',
-        './inputs/test/Y_' + test_name + '.csv'
+        './output/trainset/GVNC_' + train_name + '.csv',
+        './output/trainset/Y_' + train_name + '.csv',
+        './output/testset/GVNC_' + test_name + '.csv',
+        './output/testset/Y_' + test_name + '.csv'
     )
+
+    print(trainX.shape)
+    print(testX.shape)
 
     if is_train:
         run_train(trainX, trainY, train_name)
