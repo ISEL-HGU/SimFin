@@ -74,29 +74,29 @@ def write_test_result(out_file, testX, classifier):
 
 def write_result(trainY, testY, out_file, testX, classifier):
     kneibors = classifier.kneighbors(testX)
-    predictions = classifier.predict(testX)
     is_too_long = False
+
     with open(out_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',')
 
         # writing header
         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
-                  'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk']
-        for i in range(K_NEIGHBORS):
-            i += 1
-            header += ['Y^_BIC_SHA_' + str(i), 'Y^_BIC_Path_' + str(i), 'Y^_BIC_Hunk_' + str(i),
-                       'Y^_BFC_SHA_' + str(i), 'Y^_BFC_Path_' + str(i), 'Y^_BFC_Hunk_' + str(i)]
+                  'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
+                  'Rank', 'Sim-Score', 'BI_lines',
+                  'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
+                  'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
+
         csv_writer.writerow(header)
 
         # writing each row values (test * (predicted * k_keighbors))
         for i in range(len(testY)):
             # witing real answer (y)
             y_project = testY[i][9]
-            y_bic_sha = testY[i][3]
-            y_bic_path = testY[i][1]
+            y_bic_sha = str(testY[i][3])
+            y_bic_path = str(testY[i][1])
             y_bic_path_before = testY[i][0]
-            y_bfc_sha = testY[i][7]
-            y_bfc_path = testY[i][4]
+            y_bfc_sha = str(testY[i][7])
+            y_bfc_path = str(testY[i][4])
             y_bfc_path_before = testY[i][5]
 
             # getting hunks by command line
@@ -113,18 +113,15 @@ def write_result(trainY, testY, out_file, testX, classifier):
             if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
                 is_too_long = True
 
-            instance = [str(y_bic_sha), str(y_bic_path), str(y_bic_hunk),
-                        str(y_bfc_sha), str(y_bfc_path), str(y_bfc_hunk)]
-
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
                 pred_idx = kneibors[1][i][j]
                 yhat_project = trainY[pred_idx][9]
-                yhat_bic_sha = trainY[pred_idx][3]
-                yhat_bic_path = trainY[pred_idx][1]
+                yhat_bic_sha = str(trainY[pred_idx][3])
+                yhat_bic_path = str(trainY[pred_idx][1])
                 yhat_bic_path_before = trainY[pred_idx][0]
-                yhat_bfc_sha = trainY[pred_idx][7]
-                yhat_bfc_path = trainY[pred_idx][4]
+                yhat_bfc_sha = str(trainY[pred_idx][7])
+                yhat_bfc_path = str(trainY[pred_idx][4])
                 yhat_bfc_path_before = trainY[pred_idx][5]
 
                 # getting hunks by command line
@@ -143,12 +140,16 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
                     is_too_long = True
 
-                instance += [str(yhat_bic_sha), str(yhat_bic_path), str(yhat_bic_hunk),
-                             str(yhat_bfc_sha), str(yhat_bfc_path), str(yhat_bfc_hunk)]
-            if is_too_long:
-                is_too_long = False
-                continue
-            csv_writer.writerow(instance)
+                instance = [y_bic_sha, y_bic_path, y_bic_hunk,
+                            y_bfc_sha, y_bfc_path, y_bfc_hunk,
+                            j + 1, kneibors[0][i][j], '-',
+                            yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
+                            yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
+
+                if is_too_long:
+                    is_too_long = False
+                else:
+                    csv_writer.writerow(instance)
 
 
 def vecs_on_csv(filePath, X_dbn):
@@ -362,11 +363,11 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     vecs_on_csv('./PatchSuggestion/view_file/test_encoded.csv', X_test_encoded)
 
     # writing the result of knn prediction
-    write_kneighbors('./PatchSuggestion/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
-    write_test_result('./PatchSuggestion/eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
+    write_kneighbors('./output/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
+    write_test_result('./output/eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
     write_result(Y_train,
                  Y_test,
-                 './PatchSuggestion/eval/' + test + '_result.csv',
+                 './output/eval/' + test + '_result.csv',
                  X_test_encoded,
                  knn)
 
@@ -391,8 +392,8 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
-            if a == 'train':
-                is_train = True
+            # if a == 'train':
+            is_train = True
         elif o in ("-k", "--k_neighbors"):
             K_NEIGHBORS = int(a)
         elif o in ("-p", "--predict"):
