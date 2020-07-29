@@ -5,3 +5,5 @@ view_file/*
 models/*
 inputs/*
 eval/*
+
+.DS_Store

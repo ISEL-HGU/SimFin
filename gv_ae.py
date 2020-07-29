@@ -376,7 +376,7 @@ def run_predict(X_test, Y_test, Y_train, test, train):
 
 def main(argv):
     global K_NEIGHBORS
-    train_name = ''
+    train_name = 'train'
     test_name = 'test'
 
     try:
@@ -392,7 +392,6 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
-            # if a == 'train':
             is_train = True
         elif o in ("-k", "--k_neighbors"):
             K_NEIGHBORS = int(a)
