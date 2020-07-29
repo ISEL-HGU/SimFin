@@ -251,7 +251,7 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
 def write_pickle(src, filePath):
     file = open(filePath, 'wb')
-    pickle.dump(src, file)
+    pickle.dump(src, file, protocol=4)
     file.close()
     print('writing on', filePath, 'complete!')
     return
@@ -317,7 +317,7 @@ def run_train(X_train, Y_train, train):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=15, batch_size=512, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=2, batch_size=512, shuffle=True)
 
     T_autoencoder = autoencoder
     T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)
