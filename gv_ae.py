@@ -103,12 +103,12 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bic_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bic_sha + ' ; '
                                     'git diff ' + y_bic_sha + '~ ' + y_bic_path)
-            y_bic_hunk = y_bic_stream.read()
+            y_bic_hunk = y_bic_stream.read().rstrip().encode('UTF-16')
 
             y_bfc_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bfc_sha + ' ; '
                                     'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
-            y_bfc_hunk = y_bfc_stream.read()
+            y_bfc_hunk = y_bfc_stream.read().rstrip().encode('UTF-16')
 
             if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
                 is_too_long = True
@@ -129,13 +129,13 @@ def write_result(trainY, testY, out_file, testX, classifier):
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bic_sha + ' ; '
                                            'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
-                yhat_bic_hunk = yhat_bic_stream.read()
+                yhat_bic_hunk = yhat_bic_stream.read().rstrip().encode('UTF-16')
 
                 yhat_bfc_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bfc_sha + ' ; '
                                            'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
-                yhat_bfc_hunk = yhat_bfc_stream.read()
+                yhat_bfc_hunk = yhat_bfc_stream.read().rstrip().encode('UTF-16')
 
                 if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
                     is_too_long = True
