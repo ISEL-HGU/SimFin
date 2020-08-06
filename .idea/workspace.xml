@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fb04d6ff-f972-4ac2-a4ff-99907d03f4ff" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gv_ae.py" beforeDir="false" afterPath="$PROJECT_DIR$/gv_ae.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,6 +126,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -156,14 +156,19 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="240" y="98" key="#Plugins" timestamp="1591593307771">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="-1600" y="-217" key="#Plugins" timestamp="1596174858724">
+      <screen x="-1920" y="-335" width="1920" height="1080" />
     </state>
+    <state x="-1600" y="-217" key="#Plugins/0.0.1440.900/-1920.-335.1920.1080@-1920.-335.1920.1080" timestamp="1596174858724" />
     <state x="240" y="98" key="#Plugins/0.0.1440.900@0.0.1440.900" timestamp="1591593307771" />
     <state x="-2212" y="28" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1591226749284">
       <screen x="-2560" y="-501" width="2560" height="1440" />
     </state>
     <state x="-2212" y="28" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591226749284" />
+    <state x="-1752" y="-52" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1596174601949">
+      <screen x="-1920" y="-335" width="1920" height="1080" />
+    </state>
+    <state x="-1752" y="-52" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1440.900/-1920.-335.1920.1080@-1920.-335.1920.1080" timestamp="1596174601949" />
     <state width="469" height="372" key="GridCell.Tab.0.bottom" timestamp="1595510607943">
       <screen x="-1920" y="-335" width="1920" height="1080" />
     </state>
