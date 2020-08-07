@@ -11,11 +11,10 @@ import pandas as pd
 import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
-import subprocess
-from subprocess import CompletedProcess
 import sys
 
 K_NEIGHBORS = 1
+CUTOFF = 0
 
 np.set_printoptions(threshold=np.inf)
 
@@ -82,7 +81,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
         # writing header
         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
                   'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'BI_lines',
+                  'Rank', 'Sim-Score', 'BI_lines', 'Label',
                   'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                   'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
 
@@ -98,6 +97,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bfc_sha = str(testY[i][7])
             y_bfc_path = str(testY[i][4])
             y_bfc_path_before = testY[i][5]
+            y_real_label = testY[i][10]
 
             # getting hunks by command line
             y_bic_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
@@ -142,7 +142,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
 
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], '-',
+                            j + 1, kneibors[0][i][j], '-', y_real_label,
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
@@ -169,29 +169,28 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
     trainX = np.asarray(list(trainX))
     trainY = pd.read_csv(train_label, names=['index',
-                                             'path_before',
+                                             'path_BBIC',
                                              'path_BIC',
-                                             'sha_before',
+                                             'sha_BBIC',
                                              'sha_BIC',
-                                             'path_fix',
-                                             'path_BFix',
-                                             'sha_BFix'
-                                             'sha_fix',
+                                             'path_BBFC',
+                                             'path_BFC',
+                                             'sha_BBFC'
+                                             'sha_BFC',
                                              'key',
                                              'project'])
     testX = np.asarray(list(testX))
     testY = pd.read_csv(test_label, names=['index',
-                                           'path_before',
+                                           'path_BBIC',
                                            'path_BIC',
-                                           'sha_before',
+                                           'sha_BBIC',
                                            'sha_BIC',
-                                           'path_fix',
-                                           'path_BFix',
-                                           'sha_BFix'
-                                           'sha_fix',
+                                           'path_BBFC',
+                                           'path_BFC',
+                                           'sha_BBFC'
+                                           'sha_BFC',
                                            'key',
                                            'project'])
-
     train_max = 0
     test_max = 0
 
@@ -365,22 +364,68 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     # writing the result of knn prediction
     write_kneighbors('./output/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
     write_test_result('./output/eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
+    resultFile = './output/eval/' + test + '_result.csv'
     write_result(Y_train,
                  Y_test,
-                 './output/eval/' + test + '_result.csv',
+                 resultFile,
                  X_test_encoded,
                  knn)
-
     print('run_predict complete!')
+    return resultFile
+
+
+def evaluate(Y_train, result_file):
+    results = pd.read_csv(result_file, names=['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
+                                              'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
+                                              'Rank', 'Sim-Score', 'BI_lines', 'Label',
+                                              'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
+                                              'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']).values
+
+    distance = 0
+    distance_list = []
+    prediction_list = []
+    TP = 0
+    TN = 0
+    FN = 0
+    FP = 0
+
+    for i in range(len(results)):
+        if (i + 1) % K_NEIGHBORS == 0:
+            distance_list.append(distance / K_NEIGHBORS)
+            distance = 0
+        else:
+            distance += results[i][7]
+
+    for i in range(len(distance_list)):
+        if distance_list[i] > CUTOFF:
+            prediction_list.append(0)
+        else:
+            prediction_list.append(1)
+
+    print('len of distance_list', len(distance_list))
+
+    for i in range(len(Y_train)):
+        label = int(Y_train[i][10])
+        if label == 1 and prediction_list[i] == 1:
+            TP += 1
+        elif label == 1 and prediction_list[i] == 0:
+            FN += 1
+        elif label == 0 and prediction_list[i] == 1:
+            FP += 1
+        elif label == 0 and prediction_list[i] == 0:
+            TN += 1
+
+    return TP, FN, FP, TN
 
 
 def main(argv):
     global K_NEIGHBORS
+    global CUTOFF
     train_name = 'train'
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:", ["help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -398,6 +443,8 @@ def main(argv):
         elif o in ("-p", "--predict"):
             is_predict = True
             test_name = a
+        elif o in ("-c", "--cutoff"):
+            CUTOFF = int(a)
         else:
             assert False, "unhandled option"
 
@@ -415,7 +462,13 @@ def main(argv):
     if is_train:
         run_train(trainX, trainY, train_name)
     if is_predict:
-        run_predict(testX, testY, trainY, test_name, train_name)
+        result = run_predict(testX, testY, trainY, test_name, train_name)
+        true_positive, false_negative, false_positive, true_negative = evaluate(trainY, result)
+
+        print("TP: ", true_positive)
+        print("FN: ", false_negative)
+        print("FP: ", false_positive)
+        print("TN: ", true_negative)
 
 
 if __name__ == '__main__':
