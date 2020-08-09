@@ -190,7 +190,8 @@ def loadGumVec(train_file, train_label, test_file, test_label):
                                            'sha_BBFC'
                                            'sha_BFC',
                                            'key',
-                                           'project'])
+                                           'project',
+                                           'label'])
     train_max = 0
     test_max = 0
 
