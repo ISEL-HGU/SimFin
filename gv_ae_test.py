@@ -13,7 +13,6 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 
 K_NEIGHBORS = 1
-CUTOFF = 0
 
 np.set_printoptions(threshold=np.inf)
 
@@ -360,12 +359,11 @@ def run_predict(X_test, Y_test, Y_train, test, train):
 
 def main(argv):
     global K_NEIGHBORS
-    global CUTOFF
     train_name = 'train'
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict", "cutoff"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:", ["help", "train", "k_neighbors", "predict"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -383,8 +381,6 @@ def main(argv):
         elif o in ("-p", "--predict"):
             is_predict = True
             test_name = a
-        elif o in ("-c", "--cutoff"):
-            CUTOFF = a
         else:
             assert False, "unhandled option"
 
