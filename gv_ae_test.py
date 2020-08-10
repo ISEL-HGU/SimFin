@@ -9,6 +9,7 @@ import numpy as np
 import os
 import pandas as pd
 import pickle
+import pprint
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 import sys
@@ -56,7 +57,8 @@ def write_kneighbors(out_file, testX, classifier):
         for i in range(len(kneighbors[0])):
             if np.any(kneighbors[0][i] < 0.001):
                 score += 1
-            fp.write(str(i) + ': ' + str(kneighbors[0][i]) + ' ' + str(kneighbors[1][i]) + '\n')
+            fp.write(str(i) + ': ' +
+                     str(kneighbors[0][i]) + ' ' + str(kneighbors[1][i]) + '\n')
         # fp.write(str(kneighbors))
     print('score:', score)
     print('writing test on', out_file, 'complete!')
@@ -240,14 +242,16 @@ def loadGumVec(train_file, train_label, test_file, test_label):
             new_trainX[i] = np.asarray(trainX[i])
         new_testX = np.zeros(shape=(len(testX), train_max))
         for i in range(len(testX)):
-            new_testX[i] = np.concatenate([testX[i], np.zeros(shape=(train_max - test_max))])
+            new_testX[i] = np.concatenate(
+                [testX[i], np.zeros(shape=(train_max - test_max))])
     if test_max > train_max:
         new_trainX = np.zeros(shape=(len(trainX), test_max))
         new_testX = np.zeros(shape=(len(testX), test_max))
         for i in range(len(testX)):
             new_testX[i] = np.asarray(testX[i])
         for i in range(len(trainX)):
-            new_trainX[i] = np.concatenate([trainX[i], np.zeros(shape=(test_max - train_max))])
+            new_trainX[i] = np.concatenate(
+                [trainX[i], np.zeros(shape=(test_max - train_max))])
 
     f_trainX.close()
     f_testX.close()
@@ -326,15 +330,18 @@ def run_train(X_train, Y_train, train):
     autoencoder.fit(X_train, X_train, epochs=2, batch_size=512, shuffle=True)
 
     T_autoencoder = autoencoder
-    T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)
+    T_encoder = Model(inputs=T_autoencoder.input,
+                      outputs=T_autoencoder.get_layer('encoder').output)
 
     # encoding dataset
     X_train_encoded = T_encoder.predict(X_train)
 
-    T_encoder.save('./PatchSuggestion/models/' + train + '_encoder.model', include_optimizer=True)
+    T_encoder.save('./PatchSuggestion/models/' + train +
+                   '_encoder.model', include_optimizer=True)
 
     # wrting encoded dataset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/train_encoded.csv', X_train_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/train_encoded.csv',
+                X_train_encoded)
 
     print('\nX_encoded:', X_train_encoded.shape)
 
@@ -356,7 +363,8 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     # Model Evaluation
 
     # loading models
-    encoder = load_model('./PatchSuggestion/models/' + train + '_encoder.model', compile=False)
+    encoder = load_model('./PatchSuggestion/models/' +
+                         train + '_encoder.model', compile=False)
     knn = load_pickle('./PatchSuggestion/models/' + train + '_knn.model')
     scaler = load_pickle('./PatchSuggestion/models/' + train + '_scaler.pkl')
 
@@ -369,8 +377,10 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     vecs_on_csv('./PatchSuggestion/view_file/test_encoded.csv', X_test_encoded)
 
     # writing the result of knn prediction
-    write_kneighbors('./output/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)
-    write_test_result('./output/eval/' + test + '_gv_ae_predict.txt', X_test_encoded, knn)
+    write_kneighbors('./output/eval/' + test +
+                     '_gv_ae_kneighbors.txt', X_test_encoded, knn)
+    write_test_result('./output/eval/' + test +
+                      '_gv_ae_predict.txt', X_test_encoded, knn)
     resultFile = './output/eval/' + test + '_result.csv'
     write_result(Y_train,
                  Y_test,
@@ -382,47 +392,85 @@ def run_predict(X_test, Y_test, Y_train, test, train):
 
 
 def evaluate(Y_train, result_file):
+    cutoffs = str(CUTOFF).split(',')
+    min_cutoff = float(cutoffs[0])
+    max_cutoff = float(cutoffs[1])
     results = pd.read_csv(result_file, names=['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
                                               'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
                                               'Rank', 'Sim-Score', 'BI_lines', 'Label',
                                               'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                                               'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']).values
 
-    distance = 0
-    distance_list = []
-    prediction_list = []
-    TP = 0
-    TN = 0
-    FN = 0
-    FP = 0
+    cutoff_idx = 0
+    cutoff = min_cutoff
+    while cutoff < max_cutoff:
+        cutoff += 0.1
+        cutoff_idx += 1
+    distance_list = np.zeros(cutoff_idx, K_NEIGHBORS, len(results) / K_NEIGHBORS)
+    prediction_list = np.zeros(cutoff_idx, K_NEIGHBORS, len(results) / K_NEIGHBORS)
 
-    for i in range(len(results)):
-        if (i + 1) % K_NEIGHBORS == 0:
-            distance_list.append(distance / K_NEIGHBORS)
-            distance = 0
-        else:
-            distance += results[i][7]
+    tp = 0
+    fp = 0
+    fn = 0
+    tn = 0
 
-    for i in range(len(distance_list)):
-        if distance_list[i] > CUTOFF:
-            prediction_list.append(0)
-        else:
-            prediction_list.append(1)
+    cutoff_idx = 0
+    cutoff = min_cutoff
+    while cutoff < max_cutoff:
+        try:
+            for i in range(1, K_NEIGHBORS + 1):
+                for j in range(len(results)):
+                    if results[j][6] <= i:
+                        distance_list[cutoff_idx][i][j] += (results[j][7] / j)
+                    else:
+                        continue
+        finally:
+            cutoff += 0.1
+            cutoff_idx += 1
+
+    cutoff_idx = 0
+    cutoff = min_cutoff
+    while cutoff < max_cutoff:
+        try:
+            for i in range(1, K_NEIGHBORS + 1):
+                for j in range(len(results)):
+                    if distance_list[cutoff_idx][i][j] < cutoff:
+                        prediction_list[cutoff_idx][i][j] = 1
+                    else:
+                        prediction_list[cutoff_idx][i][j] = 0
+        finally:
+            cutoff += 0.1
+            cutoff_idx += 1
 
     print('len of distance_list', len(distance_list))
 
     for i in range(len(Y_train)):
         label = int(Y_train[i][10])
-        if label == 1 and prediction_list[i] == 1:
-            TP += 1
-        elif label == 1 and prediction_list[i] == 0:
-            FN += 1
-        elif label == 0 and prediction_list[i] == 1:
-            FP += 1
-        elif label == 0 and prediction_list[i] == 0:
-            TN += 1
+        if prediction_list == 1 and label[i] == 1:
+            tp += 1
+        elif prediction_list == 1 and label[i] == 0:
+            fp += 1
+        elif prediction_list == 0 and label[i] == 1:
+            fn += 1
+        elif prediction_list == 0 and label[i] == 0:
+            tn += 1
 
-    return TP, FN, FP, TN
+    return tp, fp, fn, tn
+
+
+def write_recall(tp, fn, fp, tn):
+
+    return
+
+
+def write_precision(tp, fn, fp, tn):
+
+    return
+
+
+def write_f_measure(tp, fn, fp, tn):
+
+    return
 
 
 def main(argv):
@@ -432,7 +480,8 @@ def main(argv):
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", [
+                                   "help", "train", "k_neighbors", "predict"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -451,7 +500,7 @@ def main(argv):
             is_predict = True
             test_name = a
         elif o in ("-c", "--cutoff"):
-            CUTOFF = int(a)
+            CUTOFF = a
         else:
             assert False, "unhandled option"
 
@@ -470,12 +519,13 @@ def main(argv):
         run_train(trainX, trainY, train_name)
     if is_predict:
         result = run_predict(testX, testY, trainY, test_name, train_name)
-        true_positive, false_negative, false_positive, true_negative = evaluate(trainY, result)
+        TP, FP, FN, TN = evaluate(
+            trainY, result)
 
-        print("TP: ", true_positive)
-        print("FN: ", false_negative)
-        print("FP: ", false_positive)
-        print("TN: ", true_negative)
+        print("TP: ", TP)
+        print("FP: ", FP)
+        print("FN: ", FN)
+        print("TN: ", TN)
 
 
 if __name__ == '__main__':
