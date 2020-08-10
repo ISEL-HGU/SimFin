@@ -6,10 +6,8 @@ from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 import logging
 import numpy as np
-import os
 import pandas as pd
 import pickle
-import pprint
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 import sys
@@ -92,25 +90,11 @@ def write_result(trainY, testY, out_file, testX, classifier):
         # writing each row values (test * (predicted * k_keighbors))
         for i in range(len(testY)):
             # witing real answer (y)
-            y_project = testY[i][9]
             y_bic_sha = str(testY[i][3])
             y_bic_path = str(testY[i][1])
-            y_bic_path_before = testY[i][0]
             y_bfc_sha = str(testY[i][7])
             y_bfc_path = str(testY[i][4])
-            y_bfc_path_before = testY[i][5]
             y_real_label = testY[i][10]
-
-            # getting hunks by command line
-            # y_bic_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
-            #                         'git checkout ' + y_bic_sha + ' ; '
-            #                         'git diff ' + y_bic_sha + '~ ' + y_bic_path)
-            # y_bic_hunk = str(y_bic_stream.read())
-
-            # y_bfc_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
-            #                         'git checkout ' + y_bfc_sha + ' ; '
-            #                         'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
-            # y_bfc_hunk = str(y_bfc_stream.read())
 
             y_bic_hunk = '-'
             y_bfc_hunk = '-'
@@ -121,26 +105,10 @@ def write_result(trainY, testY, out_file, testX, classifier):
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
                 pred_idx = kneibors[1][i][j]
-                yhat_project = trainY[pred_idx][9]
                 yhat_bic_sha = str(trainY[pred_idx][3])
                 yhat_bic_path = str(trainY[pred_idx][1])
-                yhat_bic_path_before = trainY[pred_idx][0]
                 yhat_bfc_sha = str(trainY[pred_idx][7])
                 yhat_bfc_path = str(trainY[pred_idx][4])
-                yhat_bfc_path_before = trainY[pred_idx][5]
-
-                # getting hunks by command line
-                # yhat_bic_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
-                #                            + yhat_project + ' ; '
-                #                            'git checkout ' + yhat_bic_sha + ' ; '
-                #                            'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
-                # yhat_bic_hunk = str(yhat_bic_stream.read())
-                #
-                # yhat_bfc_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
-                #                            + yhat_project + ' ; '
-                #                            'git checkout ' + yhat_bfc_sha + ' ; '
-                #                            'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
-                # yhat_bfc_hunk = str(yhat_bfc_stream.read())
 
                 yhat_bic_hunk = '-'
                 yhat_bfc_hunk = '-'
@@ -388,89 +356,6 @@ def run_predict(X_test, Y_test, Y_train, test, train):
                  X_test_encoded,
                  knn)
     print('run_predict complete!')
-    return resultFile
-
-
-def evaluate(Y_train, result_file):
-    cutoffs = str(CUTOFF).split(',')
-    min_cutoff = float(cutoffs[0])
-    max_cutoff = float(cutoffs[1])
-    results = pd.read_csv(result_file, names=['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
-                                              'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                                              'Rank', 'Sim-Score', 'BI_lines', 'Label',
-                                              'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
-                                              'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']).values
-
-    cutoff_idx = 0
-    cutoff = min_cutoff
-    while cutoff < max_cutoff:
-        cutoff += 0.1
-        cutoff_idx += 1
-    distance_list = np.zeros(cutoff_idx, K_NEIGHBORS, len(results) / K_NEIGHBORS)
-    prediction_list = np.zeros(cutoff_idx, K_NEIGHBORS, len(results) / K_NEIGHBORS)
-
-    tp = 0
-    fp = 0
-    fn = 0
-    tn = 0
-
-    cutoff_idx = 0
-    cutoff = min_cutoff
-    while cutoff < max_cutoff:
-        try:
-            for i in range(1, K_NEIGHBORS + 1):
-                for j in range(len(results)):
-                    if results[j][6] <= i:
-                        distance_list[cutoff_idx][i][j] += (results[j][7] / j)
-                    else:
-                        continue
-        finally:
-            cutoff += 0.1
-            cutoff_idx += 1
-
-    cutoff_idx = 0
-    cutoff = min_cutoff
-    while cutoff < max_cutoff:
-        try:
-            for i in range(1, K_NEIGHBORS + 1):
-                for j in range(len(results)):
-                    if distance_list[cutoff_idx][i][j] < cutoff:
-                        prediction_list[cutoff_idx][i][j] = 1
-                    else:
-                        prediction_list[cutoff_idx][i][j] = 0
-        finally:
-            cutoff += 0.1
-            cutoff_idx += 1
-
-    print('len of distance_list', len(distance_list))
-
-    for i in range(len(Y_train)):
-        label = int(Y_train[i][10])
-        if prediction_list == 1 and label[i] == 1:
-            tp += 1
-        elif prediction_list == 1 and label[i] == 0:
-            fp += 1
-        elif prediction_list == 0 and label[i] == 1:
-            fn += 1
-        elif prediction_list == 0 and label[i] == 0:
-            tn += 1
-
-    return tp, fp, fn, tn
-
-
-def write_recall(tp, fn, fp, tn):
-
-    return
-
-
-def write_precision(tp, fn, fp, tn):
-
-    return
-
-
-def write_f_measure(tp, fn, fp, tn):
-
-    return
 
 
 def main(argv):
@@ -480,8 +365,7 @@ def main(argv):
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", [
-                                   "help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict", "cutoff"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -518,14 +402,7 @@ def main(argv):
     if is_train:
         run_train(trainX, trainY, train_name)
     if is_predict:
-        result = run_predict(testX, testY, trainY, test_name, train_name)
-        TP, FP, FN, TN = evaluate(
-            trainY, result)
-
-        print("TP: ", TP)
-        print("FP: ", FP)
-        print("FN: ", FN)
-        print("TN: ", TN)
+        run_predict(testX, testY, trainY, test_name, train_name)
 
 
 if __name__ == '__main__':

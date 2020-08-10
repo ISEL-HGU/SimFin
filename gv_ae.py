@@ -372,51 +372,6 @@ def run_predict(X_test, Y_test, Y_train, test, train):
                  X_test_encoded,
                  knn)
     print('run_predict complete!')
-    return resultFile
-
-
-def evaluate(Y_train, result_file):
-    results = pd.read_csv(result_file, names=['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
-                                              'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                                              'Rank', 'Sim-Score', 'BI_lines', 'Label',
-                                              'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
-                                              'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']).values
-
-    distance = 0
-    distance_list = []
-    prediction_list = []
-    TP = 0
-    TN = 0
-    FN = 0
-    FP = 0
-
-    for i in range(len(results)):
-        if (i + 1) % K_NEIGHBORS == 0:
-            distance_list.append(distance / K_NEIGHBORS)
-            distance = 0
-        else:
-            distance += results[i][7]
-
-    for i in range(len(distance_list)):
-        if distance_list[i] > CUTOFF:
-            prediction_list.append(0)
-        else:
-            prediction_list.append(1)
-
-    print('len of distance_list', len(distance_list))
-
-    for i in range(len(Y_train)):
-        label = int(Y_train[i][10])
-        if label == 1 and prediction_list[i] == 1:
-            TP += 1
-        elif label == 1 and prediction_list[i] == 0:
-            FN += 1
-        elif label == 0 and prediction_list[i] == 1:
-            FP += 1
-        elif label == 0 and prediction_list[i] == 0:
-            TN += 1
-
-    return TP, FN, FP, TN
 
 
 def main(argv):
@@ -426,7 +381,7 @@ def main(argv):
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:c:", ["help", "train", "k_neighbors", "predict", "cutoff"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -463,13 +418,7 @@ def main(argv):
     if is_train:
         run_train(trainX, trainY, train_name)
     if is_predict:
-        result = run_predict(testX, testY, trainY, test_name, train_name)
-        true_positive, false_negative, false_positive, true_negative = evaluate(trainY, result)
-
-        print("TP: ", true_positive)
-        print("FN: ", false_negative)
-        print("FP: ", false_positive)
-        print("TN: ", true_negative)
+        run_predict(testX, testY, trainY, test_name, train_name)
 
 
 if __name__ == '__main__':
