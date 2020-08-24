@@ -308,7 +308,7 @@ def run_train(X_train, Y_train, train):
                    '_encoder.model', include_optimizer=True)
 
     # wrting encoded dataset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/' + train + 'encoded.csv',
+    vecs_on_csv('./PatchSuggestion/view_file/' + train + '_encoded.csv',
                 X_train_encoded)
 
     print('\nX_encoded:', X_train_encoded.shape)
