@@ -308,7 +308,7 @@ def run_train(X_train, Y_train, train):
                    '_encoder.model', include_optimizer=True)
 
     # wrting encoded dataset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/train_encoded.csv',
+    vecs_on_csv('./PatchSuggestion/view_file/' + train + 'encoded.csv',
                 X_train_encoded)
 
     print('\nX_encoded:', X_train_encoded.shape)
@@ -342,7 +342,7 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     X_test_encoded = encoder.predict(X_test)
 
     # wrting encoded testset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/test_encoded.csv', X_test_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/' + test + '_encoded.csv', X_test_encoded)
 
     # writing the result of knn prediction
     write_kneighbors('./output/eval/' + test +
