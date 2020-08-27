@@ -72,7 +72,6 @@ def write_test_result(out_file, testX, classifier):
 
 def write_result(trainY, testY, out_file, testX, classifier):
     kneibors = classifier.kneighbors(testX)
-    is_too_long = False
 
     with open(out_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',')
@@ -98,9 +97,6 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bic_hunk = '-'
             y_bfc_hunk = '-'
 
-            if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
-                is_too_long = True
-
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
                 pred_idx = kneibors[1][i][j]
@@ -121,10 +117,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
-                if is_too_long:
-                    is_too_long = False
-                else:
-                    csv_writer.writerow(instance)
+                csv_writer.writerow(instance)
 
 
 def vecs_on_csv(filePath, X_dbn):
@@ -295,7 +288,7 @@ def run_train(X_train, Y_train, train):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=2, batch_size=512, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=20, batch_size=512, shuffle=True)
 
     T_autoencoder = autoencoder
     T_encoder = Model(inputs=T_autoencoder.input,

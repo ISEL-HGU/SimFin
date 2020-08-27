@@ -93,19 +93,17 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_project = testY[i][9]
             y_bic_sha = str(testY[i][3])
             y_bic_path = str(testY[i][1])
-            y_bic_path_before = testY[i][0]
             y_bfc_sha = str(testY[i][7])
             y_bfc_path = str(testY[i][4])
-            y_bfc_path_before = testY[i][5]
             y_real_label = testY[i][10]
 
             # getting hunks by command line
-            y_bic_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
+            y_bic_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bic_sha + ' ; '
                                     'git diff ' + y_bic_sha + '~ ' + y_bic_path)
             y_bic_hunk = str(y_bic_stream.read())
 
-            y_bfc_stream = os.popen('cd ./output/reference/repositories/' + y_project + ' ; '
+            y_bfc_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
                                     'git checkout ' + y_bfc_sha + ' ; '
                                     'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
             y_bfc_hunk = str(y_bfc_stream.read())
@@ -119,19 +117,17 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 yhat_project = trainY[pred_idx][9]
                 yhat_bic_sha = str(trainY[pred_idx][3])
                 yhat_bic_path = str(trainY[pred_idx][1])
-                yhat_bic_path_before = trainY[pred_idx][0]
                 yhat_bfc_sha = str(trainY[pred_idx][7])
                 yhat_bfc_path = str(trainY[pred_idx][4])
-                yhat_bfc_path_before = trainY[pred_idx][5]
 
                 # getting hunks by command line
-                yhat_bic_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
+                yhat_bic_stream = os.popen('cd ./data/reference/repositories/'
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bic_sha + ' ; '
                                            'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
                 yhat_bic_hunk = str(yhat_bic_stream.read())
 
-                yhat_bfc_stream = os.popen('cd ./BugPatchCollector/apacheBIC/reference/repositories/'
+                yhat_bfc_stream = os.popen('cd ./data/reference/repositories/'
                                            + yhat_project + ' ; '
                                            'git checkout ' + yhat_bfc_sha + ' ; '
                                            'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
@@ -178,7 +174,8 @@ def loadGumVec(train_file, train_label, test_file, test_label):
                                              'sha_BBFC'
                                              'sha_BFC',
                                              'key',
-                                             'project'])
+                                             'project',
+                                             'label'])
     testX = np.asarray(list(testX))
     testY = pd.read_csv(test_label, names=['index',
                                            'path_BBIC',
@@ -317,7 +314,7 @@ def run_train(X_train, Y_train, train):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=2, batch_size=512, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=20, batch_size=512, shuffle=True)
 
     T_autoencoder = autoencoder
     T_encoder = Model(inputs=T_autoencoder.input, outputs=T_autoencoder.get_layer('encoder').output)

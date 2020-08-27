@@ -20,6 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb04d6ff-f972-4ac2-a4ff-99907d03f4ff" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gv_ae.py" beforeDir="false" afterPath="$PROJECT_DIR$/gv_ae.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gv_ae_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/gv_ae_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -229,10 +231,10 @@
       <screen x="-2560" y="-501" width="2560" height="1440" />
     </state>
     <state x="-2238" y="-164" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591413993807" />
-    <state x="555" y="220" width="568" height="490" key="find.popup" timestamp="1597069022584">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="-1180" y="84" width="758" height="588" key="find.popup" timestamp="1598503415974">
+      <screen x="-1920" y="-180" width="1920" height="1080" />
     </state>
-    <state x="-1180" y="84" width="758" height="588" key="find.popup/0.0.1440.900/-1920.-180.1920.1080@-1920.-180.1920.1080" timestamp="1597019398962" />
+    <state x="-1180" y="84" width="758" height="588" key="find.popup/0.0.1440.900/-1920.-180.1920.1080@-1920.-180.1920.1080" timestamp="1598503415974" />
     <state x="-1573" y="-149" width="586" height="735" key="find.popup/0.0.1440.900/-2560.-501.2560.1440@-2560.-501.2560.1440" timestamp="1591227840831" />
     <state x="555" y="220" width="568" height="490" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1597069022584" />
     <state x="469" y="201" width="503" height="564" key="search.everywhere.popup" timestamp="1597066364304">
