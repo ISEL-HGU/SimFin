@@ -11,7 +11,7 @@ import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 import sys
-
+import daal4py as d4p
 K_NEIGHBORS = 1
 
 np.set_printoptions(threshold=np.inf)
@@ -163,7 +163,6 @@ def loadGumVec(train_file, train_label, test_file, test_label):
                                            'label'])
     train_max = 0
     test_max = 0
-
     # get the max length of vecs
     for i in range(len(trainX)):
         if train_max < len(trainX[i]):
@@ -288,7 +287,7 @@ def run_train(X_train, Y_train, train):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=20, batch_size=512, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=3, batch_size=256, shuffle=True)
 
     T_autoencoder = autoencoder
     T_encoder = Model(inputs=T_autoencoder.input,
@@ -309,10 +308,12 @@ def run_train(X_train, Y_train, train):
     # training encoder + knn classifier
     knn = KNeighborsClassifier(n_neighbors=K_NEIGHBORS,
                                metric='manhattan',
-                               algorithm='auto',
+                               algorithm='kd_tree',
                                weights='distance')
-
-    knn.fit(X_train_encoded.astype(str), Y_train_label)
+    X_train_split = np.split(X_train_encoded, 10)
+    knn_d4p = d4p.kdtree_knn_classification_training(nClasses=K_NEIGHBORS)
+    
+    # knn.fit(X_train_encoded.astype(str), Y_train_label)
 
     write_pickle(knn, './PatchSuggestion/models/' + train + '_knn.model')
 
