@@ -308,12 +308,10 @@ def run_train(X_train, Y_train, train):
     # training encoder + knn classifier
     knn = KNeighborsClassifier(n_neighbors=K_NEIGHBORS,
                                metric='manhattan',
-                               algorithm='kd_tree',
+                               algorithm='auto',
                                weights='distance')
-    X_train_split = np.split(X_train_encoded, 10)
-    knn_d4p = d4p.kdtree_knn_classification_training(nClasses=K_NEIGHBORS)
-    
-    # knn.fit(X_train_encoded.astype(str), Y_train_label)
+
+    knn.fit(X_train_encoded.astype(str), Y_train_label)
 
     write_pickle(knn, './PatchSuggestion/models/' + train + '_knn.model')
 
