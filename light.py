@@ -346,7 +346,7 @@ def main(argv):
     # encoding test set through learned encoder
     X_test_encoded = T_encoder.predict(X_test)
 
-    resultFile = './output/eval/' + test_name + '_result.csv'
+    resultFile = './output/eval/' + test_name + '_' + train_name + '_result.csv'
     write_result(trainY,
                  testY,
                  resultFile,
