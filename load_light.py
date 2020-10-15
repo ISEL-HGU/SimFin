@@ -285,7 +285,7 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./PatchSuggestion/models/' + train_name + '_encoder.model', compile=False)
+    encoder = load_model('./PatchSuggestion/models/' + train_name + '_encoder.save', compile=False)
 
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
