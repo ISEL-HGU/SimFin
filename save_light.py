@@ -235,7 +235,7 @@ def main(argv):
     test_name = 'test'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:", ["help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:", ["help", "train"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -246,10 +246,6 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
-        elif o in ("-k", "--k_neighbors"):
-            K_NEIGHBORS = int(a)
-        elif o in ("-p", "--predict"):
-            test_name = a
         else:
             assert False, "unhandled option"
 
@@ -320,7 +316,6 @@ def main(argv):
     T_encoder.save('./PatchSuggestion/models/' + train_name + '_encoder.save', include_optimizer=True)
 
     print('run_predict complete!')
-
 
 if __name__ == '__main__':
     main(sys.argv)
