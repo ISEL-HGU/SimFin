@@ -11,7 +11,6 @@ import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 import sys
-import daal4py as d4p
 K_NEIGHBORS = 1
 
 np.set_printoptions(threshold=np.inf)
