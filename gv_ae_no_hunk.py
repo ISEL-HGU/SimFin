@@ -107,9 +107,6 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 yhat_bic_hunk = '-'
                 yhat_bfc_hunk = '-'
 
-                if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
-                    is_too_long = True
-
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
                             j + 1, kneibors[0][i][j], '-', y_real_label,
