@@ -263,7 +263,7 @@ def main(argv):
     # 4. save AED model
     T_encoder.save('./PatchSuggestion/models/' + train_name + '_encoder.save', include_optimizer=True)
 
-    print('run_predict complete!')
+    print('saved ' + train_name + '_encoder.save complete!')
 
 
 if __name__ == '__main__':

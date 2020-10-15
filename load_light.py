@@ -307,7 +307,7 @@ def main(argv):
                  X_test_encoded,
                  knn)
 
-    print('run_predict complete!')
+    print('loaded and predicted ' + test_name + '_' + train_name + '_result.csv complete!')
 
 
 if __name__ == '__main__':
