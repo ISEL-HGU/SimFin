@@ -19,7 +19,7 @@ seed_value = 0
 os.environ['PYTHONHASHSEED'] = str(seed_value)
 random.seed(seed_value)
 np.random.seed(seed_value)
-tf.random.seed(seed_value)
+tf.random.set_random_seed(seed_value)
 session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallism_threads=1)
 sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
 K.set_session(sess)
