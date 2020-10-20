@@ -1,3 +1,6 @@
+seed_value = 0
+import os
+os.environ['PYTHONHASHSEED']=str(seed_value)
 import csv
 import getopt
 from keras.layers import Input, Dense
@@ -5,7 +8,6 @@ from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
 import logging
 import numpy as np
-import os
 import pandas as pd
 import pickle
 import random
@@ -15,8 +17,6 @@ import tensorflow as tf
 from tensorflow.python.keras import backend as K
 
 # fixing randomness
-seed_value = 0
-os.environ['PYTHONHASHSEED'] = str(seed_value)
 random.seed(seed_value)
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
