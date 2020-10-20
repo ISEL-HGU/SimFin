@@ -1,14 +1,29 @@
 import csv
 import getopt
+from keras import backend as K
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
 import logging
 import numpy as np
+import os
 import pandas as pd
 import pickle
+import random
 from sklearn.preprocessing import MinMaxScaler
 import sys
+import tensorflow as tf
+
+# fixing randomness
+seed_value = 0
+os.environ['PYTHONHASHSEED'] = str(seed_value)
+random.seed(seed_value)
+np.random.seed(seed_value)
+tf.random.seed(seed_value)
+session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallism_threads=1)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+K.set_session(sess)
+
 
 K_NEIGHBORS = 1
 
