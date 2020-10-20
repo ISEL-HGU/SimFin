@@ -1,6 +1,5 @@
 import csv
 import getopt
-from keras import backend as K
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
@@ -13,6 +12,7 @@ import random
 from sklearn.preprocessing import MinMaxScaler
 import sys
 import tensorflow as tf
+from tensorflow.python.keras import backend as K
 
 # fixing randomness
 seed_value = 0
