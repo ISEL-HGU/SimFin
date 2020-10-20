@@ -276,9 +276,9 @@ def main(argv):
                       outputs=T_autoencoder.get_layer('encoder').output)
 
     # 4. save AED model
-    T_encoder.save('./PatchSuggestion/models/' + train_name + '_encoder.save', include_optimizer=True)
+    T_encoder.save('./PatchSuggestion/models/' + train_name + '_encoder.model', include_optimizer=True)
 
-    print('saved ' + train_name + '_encoder.save complete!')
+    print('saved ' + train_name + '_encoder.model complete!')
 
 
 if __name__ == '__main__':
