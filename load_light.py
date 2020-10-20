@@ -285,7 +285,8 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./PatchSuggestion/models/' + train_name + '_encoder.model', compile=False)
+    encoder = load_model('./PatchSuggestion/models/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] +
+                         train_name + '_encoder.model', compile=False)
 
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
@@ -300,7 +301,7 @@ def main(argv):
     knn.fit(X_train_encoded.astype(str), Y_train_label)
 
     # writing the result of knn prediction
-    resultFile = './output/eval/' + test_name + '_' + train_name + '_result.csv'
+    resultFile = './output/eval/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] + '_result.csv'
     write_result(trainY,
                  testY,
                  resultFile,

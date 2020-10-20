@@ -1,6 +1,6 @@
-seed_value = 0
+import sys
 import os
-os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['PYTHONHASHSEED'] = str(sys.argv[1])
 import csv
 import getopt
 from keras.layers import Input, Dense
@@ -12,14 +12,14 @@ import pandas as pd
 import pickle
 import random
 from sklearn.preprocessing import MinMaxScaler
-import sys
+
 import tensorflow as tf
 from tensorflow.python.keras import backend as K
 
 # fixing randomness
-random.seed(seed_value)
-np.random.seed(seed_value)
-tf.random.set_seed(seed_value)
+random.seed(sys.argv[2])
+np.random.seed(sys.argv[3])
+tf.random.set_seed(sys.argv[4])
 session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
 sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
 K.set_session(sess)
@@ -276,7 +276,8 @@ def main(argv):
                       outputs=T_autoencoder.get_layer('encoder').output)
 
     # 4. save AED model
-    T_encoder.save('./PatchSuggestion/models/' + train_name + '_encoder.model', include_optimizer=True)
+    T_encoder.save('./PatchSuggestion/models/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] + train_name +
+                   '_encoder.model', include_optimizer=True)
 
     print('saved ' + train_name + '_encoder.model complete!')
 
