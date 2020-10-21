@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
 import csv
 import getopt
 from keras.models import load_model
@@ -231,11 +234,12 @@ def load_pickle(filePath):
 
 def main(argv):
     global K_NEIGHBORS
-    train_name = 'train'
-    test_name = 'test'
+    train_name = 'no_input_for_train'
+    test_name = 'no_input_for_test'
+    seed = 0
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:", ["help", "train", "k_neighbors", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:k:p:s:", ["help", "train", "k_neighbors", "predict", "seed"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -250,14 +254,17 @@ def main(argv):
             K_NEIGHBORS = int(a)
         elif o in ("-p", "--predict"):
             test_name = a
+        elif o in ("-s", "--seed"):
+            seed = a
         else:
             assert False, "unhandled option"
 
+
     # 1. load vectors
     trainX, trainY, testX, testY = loadGumVec(
-        './output/trainset/GVNC_' + train_name + '.csv',
+        './output/trainset/X_' + train_name + '.csv',
         './output/trainset/Y_' + train_name + '.csv',
-        './output/testset/GVNC_' + test_name + '.csv',
+        './output/testset/X_' + test_name + '.csv',
         './output/testset/Y_' + test_name + '.csv'
     )
 
@@ -279,14 +286,11 @@ def main(argv):
     X_train = scaler.transform(trainX)
     X_test = scaler.transform(testX)
 
-    print('\noriginal train data X (vectorized): ', X_train.shape)
-
     ##########################################################################
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./PatchSuggestion/models/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] +
-                         train_name + '_encoder.model', compile=False)
+    encoder = load_model('./PatchSuggestion/models/' + train_name + str(seed) + '_encoder.model', compile=False)
 
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
@@ -301,14 +305,14 @@ def main(argv):
     knn.fit(X_train_encoded.astype(str), Y_train_label)
 
     # writing the result of knn prediction
-    resultFile = './output/eval/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] + '_result.csv'
+    resultFile = './output/eval/' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv'
     write_result(trainY,
                  testY,
                  resultFile,
                  X_test_encoded,
                  knn)
 
-    print('loaded and predicted ' + test_name + '_' + train_name + '_result.csv complete!')
+    print('loaded and predicted ' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv complete!')
 
 
 if __name__ == '__main__':
