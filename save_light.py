@@ -1,6 +1,7 @@
 import sys
 import os
-os.environ['PYTHONHASHSEED'] = str(sys.argv[1])
+os.environ['PYTHONHASHSEED'] = str(0)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import csv
 import getopt
 from keras.layers import Input, Dense
@@ -12,27 +13,19 @@ import pandas as pd
 import pickle
 import random
 from sklearn.preprocessing import MinMaxScaler
-
 import tensorflow as tf
 from tensorflow.python.keras import backend as K
 
-# fixing randomness
-random.seed(sys.argv[2])
-np.random.seed(sys.argv[3])
-tf.random.set_seed(sys.argv[4])
-session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
-K.set_session(sess)
-
-
-K_NEIGHBORS = 1
-
 np.set_printoptions(threshold=np.inf)
 
-logging.basicConfig(
-    format='%(asctime)s : %(levelname)s : %(message)s',
-    level=logging.INFO
-)
+# fixing randomness
+def set_random_seed(s):
+	random.seed(0)
+	np.random.seed(0)
+	tf.random.set_seed(s)
+	session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+	sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
+	K.set_session(sess)
 
 
 def is_number(s):
@@ -197,10 +190,11 @@ def load_pickle(filePath):
 
 def main(argv):
     global K_NEIGHBORS
-    train_name = 'train'
+    train_name = 'no_input_for_train'
+    seed = 0
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:", ["help", "train"])
+        opts, args = getopt.getopt(argv[1:], "ht:s:", ["help", "train", "seed"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -211,9 +205,14 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
+        elif o in ("-s", "--seed"):
+            seed = int(a)
         else:
             assert False, "unhandled option"
 
+    # 0. fix seed for randomness
+    set_random_seed(seed)
+    
     # 1. load vectors
     trainX, trainY = loadGumVec(
         './output/trainset/X_' + train_name + '.csv',
@@ -234,8 +233,6 @@ def main(argv):
     scaler.fit(trainX)
 
     X_train = scaler.transform(trainX)
-
-    print('\noriginal train data X (vectorized): ', X_train.shape)
 
     # 3. train AED model
     feature_dim = X_train.shape[1]
@@ -266,8 +263,7 @@ def main(argv):
                       outputs=T_autoencoder.get_layer('encoder').output)
 
     # 4. save AED model
-    T_encoder.save('./PatchSuggestion/models/' + sys.argv[1] + sys.argv[2] + sys.argv[3] + sys.argv[4] + train_name +
-                   '_encoder.model', include_optimizer=True)
+    T_encoder.save('./PatchSuggestion/models/' + train_name + str(seed) + '_encoder.model', include_optimizer=True)
 
     print('saved ' + train_name + '_encoder.model complete!')
 
