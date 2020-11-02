@@ -403,9 +403,9 @@ def main(argv):
 
     # load Gumtree Vectors
     trainX, trainY, testX, testY = loadGumVec(
-        './output/trainset/GVNC_' + train_name + '.csv',
+        './output/trainset/X_' + train_name + '.csv',
         './output/trainset/Y_' + train_name + '.csv',
-        './output/testset/GVNC_' + test_name + '.csv',
+        './output/testset/X_' + test_name + '.csv',
         './output/testset/Y_' + test_name + '.csv'
     )
 

@@ -216,7 +216,7 @@ def main(argv):
 
     # 1. load vectors
     trainX, trainY = loadGumVec(
-        './output/trainset/GVNC_' + train_name + '.csv',
+        './output/trainset/X_' + train_name + '.csv',
         './output/trainset/Y_' + train_name + '.csv'
     )
 
@@ -244,19 +244,9 @@ def main(argv):
     encoded = Dense(500, activation='relu')(encoded)
     encoded = Dense(500, activation='relu')(encoded)
     encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
     encoded = Dense(500, activation='relu', name='encoder')(encoded)
 
     decoded = Dense(500, activation='relu')(encoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
     decoded = Dense(500, activation='relu')(decoded)
     decoded = Dense(500, activation='relu')(decoded)
     decoded = Dense(500, activation='relu')(decoded)

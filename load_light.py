@@ -77,7 +77,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
         # writing header
         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
                   'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'BI_lines', 'Label',
+                  'Rank', 'Sim-Score', 'BI_lines', 'Label', 'Project'
                   'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                   'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
 
@@ -90,6 +90,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bic_path = str(testY[i][1])
             y_bfc_sha = str(testY[i][7])
             y_bfc_path = str(testY[i][4])
+            y_project = testY[i][9]
             y_real_label = testY[i][10]
 
             y_bic_hunk = '-'
@@ -108,7 +109,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
 
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], '-', y_real_label,
+                            j + 1, kneibors[0][i][j], '-', y_real_label, y_project,
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
