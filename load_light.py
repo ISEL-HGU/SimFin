@@ -138,7 +138,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
 
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], y_real_label, y_project,
+                            j + 1, kneibors[0][i][j], y_real_label, yhat_project,
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
