@@ -81,7 +81,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
         # writing header
         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
                   'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'BI_lines', 'Label', 'Project'
+                  'Rank', 'Sim-Score', 'BI_lines', 'Label', 'Project',
                   'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                   'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
 

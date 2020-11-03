@@ -97,19 +97,8 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_project = testY[i][9]
             y_real_label = testY[i][10]
 
-            # getting hunks by command line
-            y_bic_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
-                                    'git checkout ' + y_bic_sha + ' ; '
-                                    'git diff ' + y_bic_sha + '~ ' + y_bic_path)
-            y_bic_hunk = str(y_bic_stream.read())
-
-            y_bfc_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
-                                    'git checkout ' + y_bfc_sha + ' ; '
-                                    'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
-            y_bfc_hunk = str(y_bfc_stream.read())
-
-            if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
-                is_too_long = True
+            y_bic_hunk = '-'
+            y_bfc_hunk = '-'
 
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
@@ -120,21 +109,8 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 yhat_bfc_sha = str(trainY[pred_idx][7])
                 yhat_bfc_path = str(trainY[pred_idx][4])
 
-                # getting hunks by command line
-                yhat_bic_stream = os.popen('cd ./data/reference/repositories/'
-                                           + yhat_project + ' ; '
-                                           'git checkout ' + yhat_bic_sha + ' ; '
-                                           'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
-                yhat_bic_hunk = str(yhat_bic_stream.read())
-
-                yhat_bfc_stream = os.popen('cd ./data/reference/repositories/'
-                                           + yhat_project + ' ; '
-                                           'git checkout ' + yhat_bfc_sha + ' ; '
-                                           'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
-                yhat_bfc_hunk = str(yhat_bfc_stream.read())
-
-                if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
-                    is_too_long = True
+                yhat_bic_hunk = '-'
+                yhat_bfc_hunk = '-'
 
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
@@ -142,10 +118,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
-                if is_too_long:
-                    is_too_long = False
-                else:
-                    csv_writer.writerow(instance)
+                csv_writer.writerow(instance)
 
 
 def vecs_on_csv(filePath, X_dbn):
