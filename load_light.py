@@ -73,6 +73,7 @@ def write_test_result(out_file, testX, classifier):
 
 def write_result(trainY, testY, out_file, testX, classifier):
     kneibors = classifier.kneighbors(testX)
+    is_too_long = False
 
     with open(out_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',')
@@ -80,7 +81,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
         # writing header
         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
                   'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'BI_lines', 'Label', 'Project'
+                  'Rank', 'Sim-Score', 'Label', 'Project'
                   'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                   'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
 
@@ -88,7 +89,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
 
         # writing each row values (test * (predicted * k_keighbors))
         for i in range(len(testY)):
-            # witing real answer (y)
+            # writing real answer (y)
             y_bic_sha = str(testY[i][3])
             y_bic_path = str(testY[i][1])
             y_bfc_sha = str(testY[i][7])
@@ -96,27 +97,55 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_project = testY[i][9]
             y_real_label = testY[i][10]
 
-            y_bic_hunk = '-'
-            y_bfc_hunk = '-'
+            # getting hunks by command line
+            y_bic_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
+                                    'git checkout ' + y_bic_sha + ' ; '
+                                    'git diff ' + y_bic_sha + '~ ' + y_bic_path)
+            y_bic_hunk = str(y_bic_stream.read())
+
+            y_bfc_stream = os.popen('cd ./data/reference/repositories/' + y_project + ' ; '
+                                    'git checkout ' + y_bfc_sha + ' ; '
+                                    'git diff ' + y_bfc_sha + '~ ' + y_bfc_path)
+            y_bfc_hunk = str(y_bfc_stream.read())
+
+            if len(y_bic_hunk) > 30000 or len(y_bfc_hunk) > 30000:
+                is_too_long = True
 
             # writing predicted answers (y^)
             for j in range(K_NEIGHBORS):
                 pred_idx = kneibors[1][i][j]
+                yhat_project = trainY[1][pred_idx][9]
                 yhat_bic_sha = str(trainY[pred_idx][3])
                 yhat_bic_path = str(trainY[pred_idx][1])
                 yhat_bfc_sha = str(trainY[pred_idx][7])
                 yhat_bfc_path = str(trainY[pred_idx][4])
 
-                yhat_bic_hunk = '-'
-                yhat_bfc_hunk = '-'
+                # getting hunks by command line
+                yhat_bic_stream = os.popen('cd ./data/reference/repositories/'
+                                           + yhat_project + ' ; '
+                                           'git checkout ' + yhat_bic_sha + ' ; '
+                                           'git diff ' + yhat_bic_sha + '~ ' + yhat_bic_path)
+                yhat_bic_hunk = str(yhat_bic_stream.read())
+
+                yhat_bfc_stream = os.popen('cd ./data/reference/repositories/'
+                                           + yhat_project + ' ; '
+                                           'git checkout ' + yhat_bfc_sha + ' ; '
+                                           'git diff ' + yhat_bfc_sha + '~ ' + yhat_bfc_path)
+                yhat_bfc_hunk = str(yhat_bfc_stream.read())
+
+                if len(yhat_bic_hunk) > 30000 or len(yhat_bfc_hunk) > 30000:
+                    is_too_long = True
 
                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], '-', y_real_label, y_project,
+                            j + 1, kneibors[0][i][j], y_real_label, y_project,
                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
-                csv_writer.writerow(instance)
+                if is_too_long:
+                    is_too_long = False
+                else:
+                    csv_writer.writerow(instance)
 
 
 def vecs_on_csv(filePath, X_dbn):
@@ -259,7 +288,6 @@ def main(argv):
             seed = a
         else:
             assert False, "unhandled option"
-
 
     # 1. load vectors
     trainX, trainY, testX, testY = loadGumVec(
