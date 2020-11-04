@@ -34,8 +34,10 @@ with open('./output/tps/' + project_name + '_hunk.csv', 'w', newline='') as csv_
 
         sugg_hunk = str(stream_sugg.read())
 
+        if len(real_hunk) > 30000:
+            real_hunk = 'change over 30K'
+        if len(sugg_hunk) > 30000:
+            sugg_hunk = 'change over 30K'
+
         line = [real_sha, real_path, real_hunk, rank, project, sugg_sha, sugg_path, sugg_hunk]
-        if len(real_hunk) > 30000 or len(sugg_hunk) > 30000:
-            continue
-        else:
-            csv_writer.writerow(line)
+        csv_writer.writerow(line)
