@@ -93,7 +93,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
             y_bic_sha = str(testY[i][3])
             y_bic_path = str(testY[i][1])
             y_bfc_sha = str(testY[i][7])
-            y_bfc_path = str(testY[i][4])
+            y_bfc_path = str(testY[i][5])
             y_project = testY[i][9]
             y_real_label = testY[i][10]
 
@@ -107,7 +107,7 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 yhat_bic_sha = str(trainY[pred_idx][3])
                 yhat_bic_path = str(trainY[pred_idx][1])
                 yhat_bfc_sha = str(trainY[pred_idx][7])
-                yhat_bfc_path = str(trainY[pred_idx][4])
+                yhat_bfc_path = str(trainY[pred_idx][5])
 
                 yhat_bic_hunk = '-'
                 yhat_bfc_hunk = '-'
