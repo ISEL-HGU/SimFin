@@ -6,7 +6,7 @@ import sys
 project_name = sys.argv[1]
 
 file_name = './output/tps/' + project_name + '.csv'
-tps = pd.read_csv(file_name).values
+tps = pd.read_csv(file_name)
 
 with open('./output/tps/' + project_name + '_hunk.csv', 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file, delimiter=',')

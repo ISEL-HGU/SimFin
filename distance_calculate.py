@@ -6,8 +6,7 @@ from keras.preprocessing.sequence import pad_sequences
 import logging
 import numpy as np
 import pandas as pd
-import pickle
-from sklearn.neighbors import KNeighborsClassifier
+import scipy.spatial.distance as distance
 from sklearn.preprocessing import MinMaxScaler
 import sys
 
@@ -20,111 +19,6 @@ logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(message)s',
     level=logging.INFO
 )
-
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
-def del_index_num(s):
-    temp = ''
-    is_passed = False
-    for c in reversed(s):
-        if is_number(c) and not is_passed:
-            continue
-        else:
-            temp += c
-            is_passed = True
-
-    temp = list(temp)
-    temp.reverse()
-    s = ''.join(temp)
-
-    return s
-
-
-def write_kneighbors(out_file, testX, classifier):
-    score = 0
-    kneighbors = classifier.kneighbors(testX)
-    with open(out_file, 'w') as fp:
-        for i in range(len(kneighbors[0])):
-            if np.any(kneighbors[0][i] < 0.001):
-                score += 1
-            fp.write(str(i) + ': ' +
-                     str(kneighbors[0][i]) + ' ' + str(kneighbors[1][i]) + '\n')
-        # fp.write(str(kneighbors))
-    print('score:', score)
-    print('writing test on', out_file, 'complete!')
-    return
-
-
-def write_test_result(out_file, testX, classifier):
-    with open(out_file, 'w+') as file:
-        for yhat in classifier.predict(testX):
-            file.write(yhat + '\n\n')
-    print('writing test on', out_file, 'complete!')
-    return
-
-
-def write_result(trainY, testY, out_file, testX, classifier):
-    kneibors = classifier.kneighbors(testX)
-
-    with open(out_file, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile, delimiter=',')
-
-        # writing header
-        header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
-                  'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'Label', 'Project',
-                  'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
-                  'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
-
-        csv_writer.writerow(header)
-
-        # writing each row values (test * (predicted * k_keighbors))
-        for i in range(len(testY)):
-            # writing real answer (y)
-            y_bic_sha = str(testY[i][3])
-            y_bic_path = str(testY[i][1])
-            y_bfc_sha = str(testY[i][7])
-            y_bfc_path = str(testY[i][5])
-            y_real_label = testY[i][10]
-
-            y_bic_hunk = '-'
-            y_bfc_hunk = '-'
-
-            # writing predicted answers (y^)
-            for j in range(K_NEIGHBORS):
-                pred_idx = kneibors[1][i][j]
-                yhat_project = trainY[pred_idx][9]
-                yhat_bic_sha = str(trainY[pred_idx][3])
-                yhat_bic_path = str(trainY[pred_idx][1])
-                yhat_bfc_sha = str(trainY[pred_idx][7])
-                yhat_bfc_path = str(trainY[pred_idx][5])
-
-                yhat_bic_hunk = '-'
-                yhat_bfc_hunk = '-'
-
-                instance = [y_bic_sha, y_bic_path, y_bic_hunk,
-                            y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], y_real_label, yhat_project,
-                            yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
-                            yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
-
-                csv_writer.writerow(instance)
-
-
-def vecs_on_csv(filePath, X_dbn):
-    # writing out the features learned by the model on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
-    df.to_csv(filePath)
-    return
 
 
 def loadGumVec(train_file, train_label, test_file, test_label):
@@ -217,26 +111,35 @@ def loadGumVec(train_file, train_label, test_file, test_label):
     return new_trainX, trainY.values, new_testX, testY.values
 
 
-def write_pickle(src, filePath):
-    file = open(filePath, 'wb')
-    pickle.dump(src, file, protocol=4)
-    file.close()
-    print('writing on', filePath, 'complete!')
+def write_result(file, results):
+
+    with open(file, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter=',')
+        header = []
+        for i in range(len(results)):
+            header.append('test' + i)
+        csv_writer.writerow(header)
+
+        csv_writer.writerows(results)
+
     return
 
 
-def load_pickle(filePath):
-    file = open(filePath, 'rb')
-    data = pickle.load(file)
-    file.close()
-    return data
+def calculate_manhattan(trainX, testX):
+    manhattan = [[0 for c in range(len(testX))] for r in range(len(trainX))]
+    for i in range(len(testX)):
+        for j in range(len(trainX)):
+            manhattan[i][j] = distance.cityblock(testX[i], trainX[j])
+        print(i, "/", len(testX), sep='')
+
+    return manhattan
 
 
 def main(argv):
     global K_NEIGHBORS
     train_name = 'no_input_for_train'
     test_name = 'no_input_for_test'
-    seed = 0
+    seed = 3
 
     try:
         opts, args = getopt.getopt(argv[1:], "ht:k:p:s:", ["help", "train", "k_neighbors", "predict", "seed"])
@@ -295,21 +198,13 @@ def main(argv):
     X_train_encoded = encoder.predict(X_train)
     X_test_encoded = encoder.predict(X_test)
 
-    # 5. apply kNN model
-    knn = KNeighborsClassifier(n_neighbors=K_NEIGHBORS,
-                               metric='manhattan',
-                               algorithm='kd_tree',
-                               weights='distance')
-
-    knn.fit(X_train_encoded.astype(str), Y_train_label)
+    # 5. distance calculation
+    distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction
     resultFile = './output/eval/' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv'
-    write_result(trainY,
-                 testY,
-                 resultFile,
-                 X_test_encoded,
-                 knn)
+    write_result(resultFile,
+                 distance_result)
 
     print('loaded and predicted ' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv complete!')
 

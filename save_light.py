@@ -1,13 +1,10 @@
 import sys
 import os
-os.environ['PYTHONHASHSEED'] = str(0)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import csv
 import getopt
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
-import logging
 import numpy as np
 import pandas as pd
 import pickle
@@ -15,17 +12,20 @@ import random
 from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 from tensorflow.python.keras import backend as K
-
+os.environ['PYTHONHASHSEED'] = str(0)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 np.set_printoptions(threshold=np.inf)
+K_NEIGHBORS = 1
+
 
 # fixing randomness
 def set_random_seed(s):
-	random.seed(0)
-	np.random.seed(0)
-	tf.random.set_seed(s)
-	session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-	sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
-	K.set_session(sess)
+    random.seed(0)
+    np.random.seed(0)
+    tf.random.set_seed(s)
+    session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+    sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
+    K.set_session(sess)
 
 
 def is_number(s):

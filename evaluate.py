@@ -39,6 +39,7 @@ def write_precision(pred_list):
 def write_f_measure(pred_list):
     return
 
+
 def main(argv):
     global CUTOFF
     global K_NEIGHBORS
