@@ -126,11 +126,12 @@ def write_result(file, results):
 
 
 def calculate_manhattan(trainX, testX):
-    manhattan = [[0 for c in range(len(testX))] for r in range(len(trainX))]
-    for i in range(len(testX)):
-        for j in range(len(trainX)):
-            manhattan[i][j] = distance.cityblock(testX[i], trainX[j])
-        print(i, "/", len(testX), sep='')
+    # manhattan = [[0 for c in range(len(testX))] for r in range(len(trainX))]
+    # for i in range(len(testX)):
+    #     for j in range(len(trainX)):
+    #         manhattan[j][i] = distance.cityblock(testX[i], trainX[j])
+    #     print(i, "/", len(testX), sep='')
+    manhattan = distance.cdist(testX, trainX, 'cityblock')
 
     return manhattan
 
@@ -199,7 +200,8 @@ def main(argv):
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation
-    distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
+    # distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
+    distance_result = distance.cdist(X_train_encoded, X_test_encoded, 'cityblock')
 
     # writing the result of knn prediction
     resultFile = './output/eval/' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv'
