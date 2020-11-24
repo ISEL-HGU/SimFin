@@ -21,6 +21,16 @@ logging.basicConfig(
 )
 
 
+def vecs_on_csv(filePath, X_dbn):
+    # writing out the features learned by the model on a csv file
+    df = pd.DataFrame(data=X_dbn[0:][0:],
+                      index=[i for i in range(X_dbn.shape[0])],
+                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
+    df.to_csv(filePath)
+    print('writing', filePath, 'complete!')
+    return
+
+
 def loadGumVec(train_file, train_label, test_file, test_label):
     f_trainX = open(train_file, 'r')
     trainX = csv.reader(f_trainX)
@@ -198,6 +208,8 @@ def main(argv):
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
     X_test_encoded = encoder.predict(X_test)
+    vecs_on_csv('./PatchSuggestion/view_file/train_encoded', X_train_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/test_encoded', X_test_encoded)
 
     # 5. distance calculation
     # distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
@@ -205,8 +217,7 @@ def main(argv):
 
     # writing the result of knn prediction
     resultFile = './output/eval/' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv'
-    write_result(resultFile,
-                 distance_result)
+    write_result(resultFile, distance_result)
 
     print('loaded and predicted ' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv complete!')
 
