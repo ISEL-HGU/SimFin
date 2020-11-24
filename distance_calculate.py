@@ -208,8 +208,8 @@ def main(argv):
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
     X_test_encoded = encoder.predict(X_test)
-    vecs_on_csv('./PatchSuggestion/view_file/train_encoded', X_train_encoded)
-    vecs_on_csv('./PatchSuggestion/view_file/test_encoded', X_test_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/' + train_name + '.csv', X_train_encoded)
+    vecs_on_csv('./PatchSuggestion/view_file/' + test_name + '.csv', X_test_encoded)
 
     # 5. distance calculation
     # distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
