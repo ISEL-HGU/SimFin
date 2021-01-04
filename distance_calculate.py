@@ -11,7 +11,6 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-K_NEIGHBORS = 1
 
 np.set_printoptions(threshold=np.inf)
 
@@ -31,38 +30,15 @@ def vecs_on_csv(filePath, X_dbn):
     return
 
 
-def loadGumVec(train_file, train_label, test_file, test_label):
+def loadGumVec(train_file, test_file):
     f_trainX = open(train_file, 'r')
     trainX = csv.reader(f_trainX)
     f_testX = open(test_file, 'r')
     testX = csv.reader(f_testX)
 
     trainX = np.asarray(list(trainX))
-    trainY = pd.read_csv(train_label, names=['index',
-                                             'path_BBIC',
-                                             'path_BIC',
-                                             'sha_BBIC',
-                                             'sha_BIC',
-                                             'path_BBFC',
-                                             'path_BFC',
-                                             'sha_BBFC'
-                                             'sha_BFC',
-                                             'key',
-                                             'project',
-                                             'label'])
     testX = np.asarray(list(testX))
-    testY = pd.read_csv(test_label, names=['index',
-                                           'path_BBIC',
-                                           'path_BIC',
-                                           'sha_BBIC',
-                                           'sha_BIC',
-                                           'path_BBFC',
-                                           'path_BFC',
-                                           'sha_BBFC'
-                                           'sha_BFC',
-                                           'key',
-                                           'project',
-                                           'label'])
+
     train_max = 0
     test_max = 0
     # get the max length of vecs
@@ -117,43 +93,35 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
     f_trainX.close()
     f_testX.close()
+    return new_trainX, new_testX
 
-    return new_trainX, trainY.values, new_testX, testY.values
 
-
-def write_result(file, results):
-
-    with open(file, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile, delimiter=',')
-        header = []
-        for i in range(len(results)):
-            header.append('test' + i)
-        csv_writer.writerow(header)
-
-        csv_writer.writerows(results)
+def get_distance(file, X_train, X_test):
+    # i = trainX, j = testX
+    for i in range(len(X_test)):
+        path = file + 'test' + str(i)
+        # make folder for every test instance ex. /test0/
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        file_name = path + '/dist.csv'
+        # open csv ex. /test0/BICSHA_BICPATH.csv
+        with open(file_name, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile, delimiter=',')
+            # writing distance between test_i and all trainset
+            for j in range(len(X_train)):
+                dist_i = distance.cityblock(X_test[i], X_train[j])
+                csv_writer.writerow([dist_i])
+        print('test', i, 'done!')
 
     return
 
 
-def calculate_manhattan(trainX, testX):
-    # manhattan = [[0 for c in range(len(testX))] for r in range(len(trainX))]
-    # for i in range(len(testX)):
-    #     for j in range(len(trainX)):
-    #         manhattan[j][i] = distance.cityblock(testX[i], trainX[j])
-    #     print(i, "/", len(testX), sep='')
-    manhattan = distance.cdist(testX, trainX, 'cityblock')
-
-    return manhattan
-
-
 def main(argv):
-    global K_NEIGHBORS
     train_name = 'no_input_for_train'
     test_name = 'no_input_for_test'
-    seed = 3
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:s:", ["help", "train", "k_neighbors", "predict", "seed"])
+        opts, args = getopt.getopt(argv[1:], "ht:p:", ["help", "train", "predict"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -164,30 +132,21 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
-        elif o in ("-k", "--k_neighbors"):
-            K_NEIGHBORS = int(a)
         elif o in ("-p", "--predict"):
             test_name = a
-        elif o in ("-s", "--seed"):
-            seed = a
         else:
             assert False, "unhandled option"
 
     # 1. load vectors
-    trainX, trainY, testX, testY = loadGumVec(
+    trainX, testX = loadGumVec(
         './output/trainset/X_' + train_name + '.csv',
-        './output/trainset/Y_' + train_name + '.csv',
         './output/testset/X_' + test_name + '.csv',
-        './output/testset/Y_' + test_name + '.csv'
     )
 
     ##########################################################################
     # DATA PREPARATION
 
-    print('original X_train.shape: ', trainX.shape)
-    print('original Y_train.shape: ', trainY.shape)
-
-    Y_train_label = trainY[:, 8]
+    print('original X_train.shape:', trainX.shape)
 
     ##########################################################################
     # Model Preparation
@@ -203,23 +162,19 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./PatchSuggestion/models/' + train_name + str(seed) + '_encoder.model', compile=False)
+    encoder = load_model('./PatchSuggestion/models/no_test_all3_encoder.model', compile=False)
 
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)
     X_test_encoded = encoder.predict(X_test)
-    vecs_on_csv('./PatchSuggestion/view_file/' + train_name + '.csv', X_train_encoded)
-    vecs_on_csv('./PatchSuggestion/view_file/' + test_name + '.csv', X_test_encoded)
 
     # 5. distance calculation
-    # distance_result = calculate_manhattan(X_train_encoded, X_test_encoded)
-    distance_result = distance.cdist(X_train_encoded, X_test_encoded, 'cityblock')
+    resultFile = './data/jihoshin/' + test_name + '/'
+    get_distance(resultFile, X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction
-    resultFile = './output/eval/' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv'
-    write_result(resultFile, distance_result)
 
-    print('loaded and predicted ' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv complete!')
+    print('loaded and predicted ' + test_name + '_' + train_name + '_result.csv complete!')
 
 
 if __name__ == '__main__':

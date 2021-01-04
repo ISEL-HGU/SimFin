@@ -141,7 +141,7 @@ def loadGumVec(train_file, train_label, test_file, test_label):
                                              'sha_BIC',
                                              'path_BBFC',
                                              'path_BFC',
-                                             'sha_BBFC'
+                                             'sha_BBFC',
                                              'sha_BFC',
                                              'key',
                                              'project',
@@ -154,7 +154,7 @@ def loadGumVec(train_file, train_label, test_file, test_label):
                                            'sha_BIC',
                                            'path_BBFC',
                                            'path_BFC',
-                                           'sha_BBFC'
+                                           'sha_BBFC',
                                            'sha_BFC',
                                            'key',
                                            'project',
