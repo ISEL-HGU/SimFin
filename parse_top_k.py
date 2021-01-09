@@ -65,6 +65,7 @@ def main(argv):
                       'Rank', 'Dist', 'Project',
                       'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
                       'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk', 'Y^_label']
+
             csv_writer.writerow(header)
 
             count = 0

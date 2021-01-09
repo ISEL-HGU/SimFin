@@ -5,12 +5,23 @@ import sys
 
 
 def main(argv):
-    file_path = '/data/jihoshin/' + argv[1]
+    file_path = './data/jihoshin/' + argv[1]  # ex) maven
+    Y_train = pd.read_csv('./output/trainset/Y_no_test_all_p.csv',
+                          names=['index',
+                                 'path_BBIC',
+                                 'path_BIC',
+                                 'sha_BBIC',
+                                 'sha_BIC',
+                                 'path_BBFC',
+                                 'path_BFC',
+                                 'sha_BBFC',
+                                 'sha_BFC',
+                                 'key',
+                                 'project',
+                                 'label']).values
 
-    # dist_csv = pd.read_csv(file_path)
     test_num = len([name for name in os.listdir(file_path)]) - 1
     print('test instance:', test_num)
-
     for i in range(test_num):
         test_path = file_path + '/test' + str(i)
         dist_i = pd.read_csv(test_path + '/dist.csv', header=None).values
@@ -22,8 +33,10 @@ def main(argv):
         with open(test_path + '/sorted.csv', 'w', newline='') as sorted_csv:
             csv_writer = csv.writer(sorted_csv, delimiter=',')
             for (key, value) in sorted_test:
+                key = int(key)
                 value = float(value)
-                row = [value, key]
+                yhat_label = Y_train[key][11]
+                row = [value, key, yhat_label]
                 csv_writer.writerow(row)
         print('test', i, 'done!')
 
