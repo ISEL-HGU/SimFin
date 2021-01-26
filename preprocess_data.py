@@ -6,7 +6,21 @@ import sys
 
 # remove duplicate X and Y of dataframe
 def rm_dups(X_file_path, Y_file_path):
-    X_train = pd.read_csv(X_file_path, header=None)
+    # f_trainX = open(X_file_path, 'r')
+    # X_train = csv.reader(f_trainX)
+    # X_train = np.asarray(list(X_train))
+    # X_train = list(map(int, X_train))
+
+    # Loop the data lines
+    with open(X_file_path, 'r') as temp_f:
+        # get No of columns in each line
+        col_count = [len(l.split(",")) for l in temp_f.readlines()]
+
+    # Generate column names  (names will be 0, 1, 2, ..., maximum columns - 1)
+    column_names = [i for i in range(0, max(col_count))]
+
+    # Read csv
+    X_train = pd.read_csv(X_file_path, header=None, delimiter=",", names=column_names)
     Y_train = pd.read_csv(Y_file_path, header=None)
 
     dup_idx = np.asarray(X_train.duplicated())  # must be before drop_duplicates
@@ -19,6 +33,11 @@ def rm_dups(X_file_path, Y_file_path):
             i -= 1
         i += 1
 
+    # new_Y_train = []
+    # X_train, dup_idx = np.unique(X_train, axis=0, return_index=True)
+    # for idx in dup_idx:
+    #     new_Y_train.append(Y_train[idx])
+
     return X_train, Y_train
 
 
@@ -30,8 +49,6 @@ def main(argv):
 
     print('X_train.shape:', trainX.shape)
     print('Y_train.shape:', trainY.shape)
-
-
 
 
 if __name__ == '__main__':
