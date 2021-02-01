@@ -169,7 +169,7 @@ def main(argv):
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation
-    resultFile = './data/jihoshin/' + test_name + '/'
+    resultFile = '/data/jihoshin/' + test_name + '/'
     get_distance(resultFile, X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction

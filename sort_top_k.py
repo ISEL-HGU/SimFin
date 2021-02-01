@@ -5,8 +5,8 @@ import sys
 
 
 def main(argv):
-    file_path = './data/jihoshin/' + argv[1]  # ex) maven
-    Y_train = pd.read_csv('./output/trainset/Y_no_test_all_p.csv',
+    file_path = '/data/jihoshin/' + argv[1]  # ex) maven
+    Y_train = pd.read_csv('./output/trainset/Y_no_test_all.csv',
                           names=['index',
                                  'path_BBIC',
                                  'path_BIC',

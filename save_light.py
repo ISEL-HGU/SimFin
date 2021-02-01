@@ -237,16 +237,16 @@ def main(argv):
     # 3. train AED model
     feature_dim = X_train.shape[1]
     input_commit = Input(shape=(feature_dim,))
-    encoded = Dense(500, activation='relu')(input_commit)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu')(encoded)
-    encoded = Dense(500, activation='relu', name='encoder')(encoded)
+    encoded = Dense(100, activation='relu')(input_commit)
+    encoded = Dense(100, activation='relu')(encoded)
+    encoded = Dense(100, activation='relu')(encoded)
+    encoded = Dense(100, activation='relu')(encoded)
+    encoded = Dense(100, activation='relu', name='encoder')(encoded)
 
-    decoded = Dense(500, activation='relu')(encoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
-    decoded = Dense(500, activation='relu')(decoded)
+    decoded = Dense(100, activation='relu')(encoded)
+    decoded = Dense(100, activation='relu')(decoded)
+    decoded = Dense(100, activation='relu')(decoded)
+    decoded = Dense(100, activation='relu')(decoded)
     decoded = Dense(feature_dim, activation='sigmoid')(decoded)
 
     ##########################################################################
