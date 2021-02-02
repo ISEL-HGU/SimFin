@@ -20,7 +20,7 @@ def main(argv):
                                  'project',
                                  'label']).values
 
-    test_num = len([name for name in os.listdir(file_path)]) - 1
+    test_num = len([name for name in os.listdir(file_path)])
     print('test instance:', test_num)
     for i in range(test_num):
         test_path = file_path + '/test' + str(i)

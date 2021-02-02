@@ -157,7 +157,7 @@ def vecs_on_csv(filePath, X_dbn):
     return
 
 
-def loadGumVec(train_file, train_label, test_file, test_label):
+def load_gumvecs(train_file, train_label, test_file, test_label):
     f_trainX = open(train_file, 'r')
     trainX = csv.reader(f_trainX)
     f_testX = open(test_file, 'r')
@@ -402,7 +402,7 @@ def main(argv):
             assert False, "unhandled option"
 
     # load Gumtree Vectors
-    trainX, trainY, testX, testY = loadGumVec(
+    trainX, trainY, testX, testY = load_gumvecs(
         './output/trainset/X_' + train_name + '.csv',
         './output/trainset/Y_' + train_name + '.csv',
         './output/testset/X_' + test_name + '.csv',

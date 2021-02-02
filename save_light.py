@@ -22,7 +22,7 @@ K_NEIGHBORS = 1
 def set_random_seed(s):
     random.seed(0)
     np.random.seed(0)
-    tf.random.set_seed(s)
+    tf.random.set_random_seed(s)
     session_conf = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
     sess = tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph(), config=session_conf)
     K.set_session(sess)
@@ -228,25 +228,25 @@ def main(argv):
     ##########################################################################
     # Model Preparation
 
-    # 2. apply scaler to trainset
+    # 2. apply scaler to trainset and save the scaler
     scaler = MinMaxScaler()
     scaler.fit(trainX)
-
+    write_pickle(scaler, './PatchSuggestion/models/' + train_name + '_scaler.pkl')
     X_train = scaler.transform(trainX)
 
     # 3. train AED model
     feature_dim = X_train.shape[1]
     input_commit = Input(shape=(feature_dim,))
-    encoded = Dense(100, activation='relu')(input_commit)
-    encoded = Dense(100, activation='relu')(encoded)
-    encoded = Dense(100, activation='relu')(encoded)
-    encoded = Dense(100, activation='relu')(encoded)
-    encoded = Dense(100, activation='relu', name='encoder')(encoded)
+    encoded = Dense(10, activation='relu')(input_commit)
+    encoded = Dense(10, activation='relu')(encoded)
+    encoded = Dense(10, activation='relu')(encoded)
+    encoded = Dense(10, activation='relu')(encoded)
+    encoded = Dense(10, activation='relu', name='encoder')(encoded)
 
-    decoded = Dense(100, activation='relu')(encoded)
-    decoded = Dense(100, activation='relu')(decoded)
-    decoded = Dense(100, activation='relu')(decoded)
-    decoded = Dense(100, activation='relu')(decoded)
+    decoded = Dense(10, activation='relu')(encoded)
+    decoded = Dense(10, activation='relu')(decoded)
+    decoded = Dense(10, activation='relu')(decoded)
+    decoded = Dense(10, activation='relu')(decoded)
     decoded = Dense(feature_dim, activation='sigmoid')(decoded)
 
     ##########################################################################
@@ -256,14 +256,16 @@ def main(argv):
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
 
-    autoencoder.fit(X_train, X_train, epochs=3, batch_size=256, shuffle=True)
+    autoencoder.fit(X_train, X_train, epochs=10, batch_size=1028, shuffle=True)
 
-    T_autoencoder = autoencoder
-    T_encoder = Model(inputs=T_autoencoder.input,
-                      outputs=T_autoencoder.get_layer('encoder').output)
+    encoder = Model(inputs=autoencoder.input,
+                    outputs=autoencoder.get_layer('encoder').output)
 
-    # 4. save AED model
-    T_encoder.save('./PatchSuggestion/models/' + train_name + str(seed) + '_encoder.model', include_optimizer=True)
+    # 4. save AED model and X_train
+    encoder.save('./output/models/' + train_name + str(seed) + '_encoder.model', include_optimizer=True)
+
+    X_train_encoded = encoder.predict(X_train)
+    vecs_on_csv('./output/view_file/train_encoded.csv', X_train_encoded)
 
     print('saved ' + train_name + '_encoder.model complete!')
 
