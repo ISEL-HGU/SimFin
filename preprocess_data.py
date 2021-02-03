@@ -116,33 +116,35 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
 
 def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
-    new_X_clean = []
-    new_Y_clean = []
-    bug_in_clean = False
-
-    for i in range(len(X_buggy)):
-        vec_buggy = X_buggy[i]
-        for j in range(len(X_clean)):
-            vec_clean = X_clean[j]
-            label_clean = Y_clean[j]
-            if j == len(X_clean - 2):
-                new_X_clean.append(vec_clean)
-                new_Y_clean.append(label_clean)
-            if (vec_clean == vec_buggy).all():
-                continue
-            elif not (vec_clean == vec_buggy).all():
-                new_X_clean.append(vec_clean)
-                new_Y_clean.append(label_clean)
-                break
-
     # for i in range(len(X_buggy)):
-    #     vec_buggy = X_clean[i]
+    #     vec_buggy = np.asarray(X_buggy[i])
     #     for j in range(len(X_clean)):
-    #         vec_clean = X_clean[j]
-    #         label_clean = Y_clean[j]
-    #         if vec
+    #         vec_clean = np.asarray(X_clean[j])
+    #         # print((np.equal(vec_buggy, vec_clean)).all(), i, j)
+    #         if np.equal(vec_buggy, vec_clean).all():
+    #             X_clean = np.delete(X_clean, j, axis=0)
+    #             Y_clean = np.delete(Y_clean, j, axis=0)
+    #             break
 
-    return np.asarray(new_X_clean), np.asarray(new_Y_clean)
+    i = 0
+    len_buggy = len(X_buggy)
+    len_clean = len(X_clean)
+    while i < len_buggy:
+        vec_buggy = np.asarray(X_buggy[i])
+        j = 0
+        while j < len_clean:
+            vec_clean = np.asarray(X_clean[j])
+            # print((np.equal(vec_buggy, vec_clean)).all(), i, j)
+            if np.equal(vec_buggy, vec_clean).all():
+                X_clean = np.delete(X_clean, j, axis=0)
+                Y_clean = np.delete(Y_clean, j, axis=0)
+                len_clean -= 1
+                j -= 1
+                break
+            j += 1
+        i += 1
+
+    return X_clean, Y_clean
 
 
 def main(argv):
@@ -159,6 +161,9 @@ def main(argv):
     buggyY = np.asarray(buggyY)
     cleanY = np.asarray(cleanY)
 
+    print(type(buggyX[0]))
+
+    print()
     print('<< After rm_dups >>')
     print('buggyX.shape:', buggyX.shape)
     print('buggyY.shape:', buggyY.shape)

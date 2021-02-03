@@ -124,7 +124,7 @@ def main(argv):
 
     # 1. load vectors
     testX = load_gumvecs(
-        './output/trainset/X_' + train_name + '.csv',
+        './output/testset/X_' + test_name + '.csv',
     )
 
     ##########################################################################
@@ -147,7 +147,7 @@ def main(argv):
 
     # 4. encode train & test set
     f_X_train = open('./output/view_file/train_encoded.csv')
-    X_train_encoded = np.asarray(csv.reader(f_X_train))
+    X_train_encoded = np.asarray(np.float_(list(csv.reader(f_X_train))))
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation

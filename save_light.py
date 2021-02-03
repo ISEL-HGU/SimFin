@@ -125,10 +125,8 @@ def write_result(trainY, testY, out_file, testX, classifier):
 
 def vecs_on_csv(filePath, X_dbn):
     # writing out the features learned by the model on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
-    df.to_csv(filePath)
+    df = pd.DataFrame(data=X_dbn[0:][0:])
+    df.to_csv(filePath, index=False)
     return
 
 
@@ -231,7 +229,7 @@ def main(argv):
     # 2. apply scaler to trainset and save the scaler
     scaler = MinMaxScaler()
     scaler.fit(trainX)
-    write_pickle(scaler, './PatchSuggestion/models/' + train_name + '_scaler.pkl')
+    write_pickle(scaler, './output/models/' + train_name + '_scaler.pkl')
     X_train = scaler.transform(trainX)
 
     # 3. train AED model
