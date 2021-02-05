@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import pickle
 import scipy.spatial.distance as distance
-from sklearn.preprocessing import MinMaxScaler
 import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -104,9 +103,10 @@ def get_distance(file, X_train, X_test):
 def main(argv):
     train_name = 'no_input_for_train'
     test_name = 'no_input_for_test'
+    out = 'no_out_specified'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:p:", ["help", "train", "predict"])
+        opts, args = getopt.getopt(argv[1:], "ht:p:o:", ["help", "train", "predict", "out"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -119,6 +119,8 @@ def main(argv):
             train_name = a
         elif o in ("-p", "--predict"):
             test_name = a
+        elif o in ("-o", "--out"):
+            out = a
         else:
             assert False, "unhandled option"
 
@@ -151,7 +153,7 @@ def main(argv):
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation
-    distFile = './data/jihoshin/' + test_name + '/'
+    distFile = './data/jihoshin/' + out + '/' + test_name + '/'
     get_distance(distFile, X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction

@@ -5,6 +5,13 @@ import pandas as pd
 import sys
 
 
+# writing out the features learned by the model on a csv file
+def vecs_on_csv(filePath, X_dbn):
+    df = pd.DataFrame(data=X_dbn[0:][0:])
+    df.to_csv(filePath, index=False)
+    return
+
+
 # remove duplicate X and Y of dataframe
 def rm_dups(X_train, Y_train):
     # dup_idx = np.asarray(X_train.duplicated())  # must be before drop_duplicates
@@ -116,16 +123,7 @@ def loadGumVec(train_file, train_label, test_file, test_label):
 
 
 def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
-    # for i in range(len(X_buggy)):
-    #     vec_buggy = np.asarray(X_buggy[i])
-    #     for j in range(len(X_clean)):
-    #         vec_clean = np.asarray(X_clean[j])
-    #         # print((np.equal(vec_buggy, vec_clean)).all(), i, j)
-    #         if np.equal(vec_buggy, vec_clean).all():
-    #             X_clean = np.delete(X_clean, j, axis=0)
-    #             Y_clean = np.delete(Y_clean, j, axis=0)
-    #             break
-
+    # This is currently used (too slow)
     i = 0
     len_buggy = len(X_buggy)
     len_clean = len(X_clean)
@@ -148,6 +146,8 @@ def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
 
 
 def main(argv):
+    out_file_name = argv[1]
+
     # load X Y data for both buggy and clean
     buggyX, buggyY, cleanX, cleanY = loadGumVec(
         './output/trainset/test/X_no_test_buggy.csv',
@@ -179,6 +179,9 @@ def main(argv):
     print('buggyY.shape:', buggyY.shape)
     print('cleanX.shape:', cleanX.shape)
     print('cleanY.shape:', cleanY.shape)
+
+    vecs_on_csv('./output/trainset/' + out_file_name, cleanX)
+    vecs_on_csv('./output/trainset/' + out_file_name, cleanY)
 
 
 if __name__ == '__main__':
