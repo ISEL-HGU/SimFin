@@ -143,7 +143,7 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./output/models/no_test_all3_encoder.model', compile=False)
+    encoder = load_model('./output/models/' + train_name + '3_encoder.model', compile=False)
 
     # 4. encode train & test set
     f_X_train = open('./output/view_file/train_encoded.csv')
@@ -151,7 +151,7 @@ def main(argv):
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation
-    distFile = './data/jihoshin/' + test_name + '/'
+    distFile = '/data/jihoshin/original/' + test_name + '/'
     get_distance(distFile, X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction

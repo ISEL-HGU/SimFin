@@ -160,7 +160,7 @@ def loadGumVec(train_file, train_label):
             if trainX[i][j] == '':
                 trainX[i][j] = 0
             else:
-                trainX[i][j] = int(trainX[i][j])
+                trainX[i][j] = int(float(trainX[i][j]))
         for j in range(train_max - len(trainX[i])):
             trainX[i].append(0)
 

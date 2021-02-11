@@ -5,6 +5,12 @@ import pandas as pd
 import sys
 
 
+def vecs_on_csv(filePath, X_dbn):
+    # writing out the features learned by the model on a csv file
+    df = pd.DataFrame(data=X_dbn[0:][0:])
+    df.to_csv(filePath, index=False)
+    return
+
 # remove duplicate X and Y of dataframe
 def rm_dups(X_train, Y_train):
     # dup_idx = np.asarray(X_train.duplicated())  # must be before drop_duplicates
@@ -150,36 +156,39 @@ def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
 def main(argv):
     # load X Y data for both buggy and clean
     buggyX, buggyY, cleanX, cleanY = loadGumVec(
-        './output/trainset/test/X_no_test_buggy.csv',
-        './output/trainset/test/Y_no_test_buggy.csv',
-        './output/trainset/test/X_no_test_clean.csv',
-        './output/trainset/test/Y_no_test_clean.csv'
+        './output/trainset/X_no_test_buggy.csv',
+        './output/trainset/Y_no_test_buggy.csv',
+        './output/trainset/X_no_test_clean.csv',
+        './output/trainset/Y_no_test_clean.csv'
     )
 
     # remove duplicated vectors from clean data set
-    cleanX,  cleanY = rm_dups(cleanX, cleanY)
+    #cleanX,  cleanY = rm_dups(cleanX, cleanY)
     buggyY = np.asarray(buggyY)
     cleanY = np.asarray(cleanY)
 
-    print(type(buggyX[0]))
+    # print(type(buggyX[0]))
 
-    print()
-    print('<< After rm_dups >>')
-    print('buggyX.shape:', buggyX.shape)
-    print('buggyY.shape:', buggyY.shape)
-    print('cleanX.shape:', cleanX.shape)
-    print('cleanY.shape:', cleanY.shape)
-    print()
+    #print()
+    #print('<< After rm_dups >>')
+    #print('buggyX.shape:', buggyX.shape)
+    #print('buggyY.shape:', buggyY.shape)
+    #print('cleanX.shape:', cleanX.shape)
+    #print('cleanY.shape:', cleanY.shape)
+    #print()
 
     # remove the instances that are the same as buggy in clean data set
     cleanX, cleanY = rm_buggy_from_clean(buggyX, cleanX, cleanY)
-
+    
+    print()
     print('<< After rm_buggy_from_clean >>')
     print('buggyX.shape:', buggyX.shape)
     print('buggyY.shape:', buggyY.shape)
     print('cleanX.shape:', cleanX.shape)
     print('cleanY.shape:', cleanY.shape)
 
+    vecs_on_csv('./output/testset/rm_dups_only_cleanX.csv', cleanX)
+    vecs_on_csv('./output/testset/rm_dups_only_cleanY.csv', cleanY)
 
 if __name__ == '__main__':
     main(sys.argv)
