@@ -144,6 +144,7 @@ def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
     return X_clean, Y_clean
 
 
+# python3 ./SimFin/preprocess_data.py preprocessed
 def main(argv):
     out_file_name = argv[1]
 

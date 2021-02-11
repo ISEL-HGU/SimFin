@@ -4,6 +4,7 @@ import pandas as pd
 import sys
 
 
+# python3 ./SimFin/sort_top_k.py preprocessed/maven
 def main(argv):
     file_path = '/data/jihoshin/' + argv[1]  # ex) preprocessed/maven
     Y_train = pd.read_csv('./output/trainset/Y_' + argv[2] + '.csv').values

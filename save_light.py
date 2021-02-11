@@ -186,6 +186,7 @@ def load_pickle(filePath):
     return data
 
 
+# python3 ./SimFin/save_light.py -t preprocessed -s 3
 def main(argv):
     global K_NEIGHBORS
     train_name = 'no_input_for_train'
