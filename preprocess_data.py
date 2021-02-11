@@ -180,8 +180,8 @@ def main(argv):
     print('cleanX.shape:', cleanX.shape)
     print('cleanY.shape:', cleanY.shape)
 
-    vecs_on_csv('./output/testset/rm_dups_only_cleanX.csv', cleanX)
-    vecs_on_csv('./output/testset/rm_dups_only_cleanY.csv', cleanY)
+    vecs_on_csv('./output/trainset/X_' + out_file_name + '.csv', cleanX)
+    vecs_on_csv('./output/trainset/Y_' + out_file_name +'.csv', cleanY)
 
 
 if __name__ == '__main__':
