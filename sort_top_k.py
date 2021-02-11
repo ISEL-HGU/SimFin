@@ -4,10 +4,12 @@ import pandas as pd
 import sys
 
 
-# python3 ./SimFin/sort_top_k.py preprocessed/maven
+# python3 ./SimFin/sort_top_k.py preprocessed maven
 def main(argv):
-    file_path = '/data/jihoshin/' + argv[1]  # ex) preprocessed/maven
-    Y_train = pd.read_csv('./output/trainset/Y_' + argv[2] + '.csv').values
+    train_name = argv[1]
+    test_name = argv[2]
+    file_path = '/data/jihoshin/' + train_name + '/' + test_name
+    Y_train = pd.read_csv('./output/trainset/Y_' + train_name + '.csv').values
     print('Y_train:', len(Y_train))
     test_num = len([name for name in os.listdir(file_path)])
     print('test_num:', test_num)
