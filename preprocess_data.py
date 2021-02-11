@@ -8,9 +8,8 @@ import sys
 # writing out the features learned by the model on a csv file
 def vecs_on_csv(filePath, X_dbn):
     df = pd.DataFrame(data=X_dbn[0:][0:])
-    df.to_csv(filePath, index=False)
+    df.to_csv(filePath, index=False, header=False)
     return
-
 
 # remove duplicate X and Y of dataframe
 def rm_dups(X_train, Y_train):
@@ -157,7 +156,7 @@ def main(argv):
     )
 
     # remove duplicated vectors from clean data set
-    #cleanX,  cleanY = rm_dups(cleanX, cleanY)
+    cleanX,  cleanY = rm_dups(cleanX, cleanY)
     buggyY = np.asarray(buggyY)
     cleanY = np.asarray(cleanY)
 

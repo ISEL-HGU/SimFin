@@ -148,12 +148,10 @@ def write_result(trainY, testY, out_file, testX, classifier):
                     csv_writer.writerow(instance)
 
 
+# writing out the features learned by the model on a csv file
 def vecs_on_csv(filePath, X_dbn):
-    # writing out the features learned by the model on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
-    df.to_csv(filePath)
+    df = pd.DataFrame(data=X_dbn[0:][0:])
+    df.to_csv(filePath, index=False, header=False)
     return
 
 
@@ -277,7 +275,7 @@ def run_train(X_train, Y_train, train):
     scaler = MinMaxScaler()
     scaler.fit(X_train)
 
-    write_pickle(scaler, './PatchSuggestion/models/' + train + '_scaler.pkl')
+    write_pickle(scaler, './output/models/' + train + '_scaler.pkl')
     X_train = scaler.transform(X_train)
 
     print('\noriginal train data X (vectorized): ', X_train.shape)
@@ -322,10 +320,10 @@ def run_train(X_train, Y_train, train):
     # encoding dataset
     X_train_encoded = T_encoder.predict(X_train)
 
-    T_encoder.save('./PatchSuggestion/models/' + train + '_encoder.model', include_optimizer=True)
+    T_encoder.save('./output/models/' + train + '_encoder.model', include_optimizer=True)
 
     # wrting encoded dataset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/train_encoded.csv', X_train_encoded)
+    vecs_on_csv('./output/view_file/train_encoded.csv', X_train_encoded)
 
     print('\nX_encoded:', X_train_encoded.shape)
 
@@ -337,7 +335,7 @@ def run_train(X_train, Y_train, train):
 
     knn.fit(X_train_encoded.astype(str), Y_train_label)
 
-    write_pickle(knn, './PatchSuggestion/models/' + train + '_knn.model')
+    write_pickle(knn, './output/models/' + train + '_knn.model')
 
     return
 
@@ -347,9 +345,9 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     # Model Evaluation
 
     # loading models
-    encoder = load_model('./PatchSuggestion/models/' + train + '_encoder.model', compile=False)
-    knn = load_pickle('./PatchSuggestion/models/' + train + '_knn.model')
-    scaler = load_pickle('./PatchSuggestion/models/' + train + '_scaler.pkl')
+    encoder = load_model('./output/models/' + train + '_encoder.model', compile=False)
+    knn = load_pickle('./output/models/' + train + '_knn.model')
+    scaler = load_pickle('./output/models/' + train + '_scaler.pkl')
 
     X_test = scaler.transform(X_test)
 
@@ -357,7 +355,7 @@ def run_predict(X_test, Y_test, Y_train, test, train):
     X_test_encoded = encoder.predict(X_test)
 
     # wrting encoded testset for checking
-    vecs_on_csv('./PatchSuggestion/view_file/test_encoded.csv', X_test_encoded)
+    vecs_on_csv('./output/view_file/test_encoded.csv', X_test_encoded)
 
     # writing the result of knn prediction
     write_kneighbors('./output/eval/' + test + '_gv_ae_kneighbors.txt', X_test_encoded, knn)

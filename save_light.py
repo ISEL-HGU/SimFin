@@ -123,10 +123,10 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 csv_writer.writerow(instance)
 
 
+# writing out the features learned by the model on a csv file
 def vecs_on_csv(filePath, X_dbn):
-    # writing out the features learned by the model on a csv file
     df = pd.DataFrame(data=X_dbn[0:][0:])
-    df.to_csv(filePath, index=False)
+    df.to_csv(filePath, index=False, header=False)
     return
 
 
@@ -211,14 +211,14 @@ def main(argv):
     # 0. fix seed for randomness
     set_random_seed(seed)
     
+    ##########################################################################
+    # DATA PREPARATION
+
     # 1. load vectors
     trainX, trainY = loadGumVec(
         './output/trainset/X_' + train_name + '.csv',
         './output/trainset/Y_' + train_name + '.csv'
     )
-
-    ##########################################################################
-    # DATA PREPARATION
 
     print('original X_train.shape: ', trainX.shape)
     print('original Y_train.shape: ', trainY.shape)
@@ -232,7 +232,10 @@ def main(argv):
     write_pickle(scaler, './output/models/' + train_name + '_scaler.pkl')
     X_train = scaler.transform(trainX)
 
-    # 3. train AED model
+    ##########################################################################
+    # Model Training
+
+    # 3. setup AED model
     feature_dim = X_train.shape[1]
     input_commit = Input(shape=(feature_dim,))
     encoded = Dense(10, activation='relu')(input_commit)
@@ -247,9 +250,6 @@ def main(argv):
     decoded = Dense(10, activation='relu')(decoded)
     decoded = Dense(feature_dim, activation='sigmoid')(decoded)
 
-    ##########################################################################
-    # Model Training
-
     # training autoencoder
     autoencoder = Model(input_commit, decoded)
     autoencoder.compile(loss='binary_crossentropy', optimizer='adadelta')
@@ -263,7 +263,7 @@ def main(argv):
     encoder.save('./output/models/' + train_name + str(seed) + '_encoder.model', include_optimizer=True)
 
     X_train_encoded = encoder.predict(X_train)
-    vecs_on_csv('./output/view_file/train_encoded.csv', X_train_encoded)
+    vecs_on_csv('./output/view_file/' + train_name + '_encoded.csv', X_train_encoded)
 
     print('saved ' + train_name + '_encoder.model complete!')
 

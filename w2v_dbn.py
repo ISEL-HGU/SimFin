@@ -156,12 +156,10 @@ def read_commits(input_file):
     return commit_list, commit_count, longest_len
 
 
-def vecs_on_csv(filePath, dbnX):
-    # writing out the features learned by dbn on a csv file
-    df = pd.DataFrame(data=dbnX[0:][0:],
-                      index=[i for i in range(dbnX.shape[0])],
-                      columns=['f' + str(i) for i in range(dbnX.shape[1])])
-    df.to_csv(filePath)
+# writing out the features learned by the model on a csv file
+def vecs_on_csv(filePath, X_dbn):
+    df = pd.DataFrame(data=X_dbn[0:][0:])
+    df.to_csv(filePath, index=False, header=False)
     return
 
 

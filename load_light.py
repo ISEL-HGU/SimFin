@@ -118,14 +118,6 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 csv_writer.writerow(instance)
 
 
-def vecs_on_csv(filePath, X_dbn):
-    # writing out the features learned by the model on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
-    df.to_csv(filePath)
-    return
-
 
 def loadGumVec(train_file, train_label, test_file, test_label):
     f_trainX = open(train_file, 'r')
@@ -289,7 +281,7 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./PatchSuggestion/models/' + train_name + str(seed) + '_encoder.model', compile=False)
+    encoder = load_model('./output/models/' + train_name + str(seed) + '_encoder.model', compile=False)
 
     # 4. encode train & test set
     X_train_encoded = encoder.predict(X_train)

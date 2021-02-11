@@ -27,16 +27,6 @@ def load_pickle(filePath):
     return data
 
 
-def vecs_on_csv(filePath, X_dbn):
-    # writing out the features learned by the model on a csv file
-    df = pd.DataFrame(data=X_dbn[0:][0:],
-                      index=[i for i in range(X_dbn.shape[0])],
-                      columns=['f' + str(i) for i in range(X_dbn.shape[1])])
-    df.to_csv(filePath)
-    print('writing', filePath, 'complete!')
-    return
-
-
 def load_gumvecs(test_file):
     f_testX = open(test_file, 'r')
     testX = csv.reader(f_testX)
@@ -148,12 +138,12 @@ def main(argv):
     encoder = load_model('./output/models/' + train_name + '3_encoder.model', compile=False)
 
     # 4. encode train & test set
-    f_X_train = open('./output/view_file/train_encoded.csv')
+    f_X_train = open('./output/view_file/' + train_name + '_encoded.csv')
     X_train_encoded = np.asarray(np.float_(list(csv.reader(f_X_train))))
     X_test_encoded = encoder.predict(X_test)
 
     # 5. distance calculation
-    distFile = './data/jihoshin/' + out + '/' + test_name + '/'
+    distFile = '/data/jihoshin/' + out + '/' + test_name + '/'
     get_distance(distFile, X_train_encoded, X_test_encoded)
 
     # writing the result of knn prediction
