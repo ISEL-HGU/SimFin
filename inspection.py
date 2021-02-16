@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 def main(argv):
     test_name = argv[1]
     test_index = argv[2]
-    file_path = './data/jihoshin/' + test_name
+    test_label = argv[3]
+    file_path = '/data/jihoshin/' + test_name
     test_num = len([name for name in os.listdir(file_path)])
 
     # for i in range(test_num):
@@ -56,8 +57,8 @@ def main(argv):
     plt.ylabel('distance')
 
     plt.legend()
-
     plt.show()
+    plt.savefig('./output/inspection/' + test_name + '_' + test_label + '_' + test_index + '.png')
 
 
 if __name__ == '__main__':
