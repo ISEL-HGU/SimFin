@@ -11,6 +11,7 @@ def vecs_on_csv(filePath, X_dbn):
     df.to_csv(filePath, index=False, header=False)
     return
 
+
 # remove duplicate X and Y of dataframe
 def rm_dups(X_train, Y_train):
     # dup_idx = np.asarray(X_train.duplicated())  # must be before drop_duplicates
@@ -163,13 +164,13 @@ def main(argv):
 
     # print(type(buggyX[0]))
 
-    #print()
-    #print('<< After rm_dups >>')
-    #print('buggyX.shape:', buggyX.shape)
-    #print('buggyY.shape:', buggyY.shape)
-    #print('cleanX.shape:', cleanX.shape)
-    #print('cleanY.shape:', cleanY.shape)
-    #print()
+    # print()
+    # print('<< After rm_dups >>')
+    # print('buggyX.shape:', buggyX.shape)
+    # print('buggyY.shape:', buggyY.shape)
+    # print('cleanX.shape:', cleanX.shape)
+    # print('cleanY.shape:', cleanY.shape)
+    # print()
 
     # remove the instances that are the same as buggy in clean data set
     cleanX, cleanY = rm_buggy_from_clean(buggyX, cleanX, cleanY)

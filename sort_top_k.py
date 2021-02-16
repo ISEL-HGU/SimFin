@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 
 
-# python3 ./SimFin/sort_top_k.py preprocessed maven
+# python3 ./SimFin/sort_top_k.py preprocessed ranger
 def main(argv):
     train_name = argv[1]
     test_name = argv[2]
