@@ -140,7 +140,8 @@ def rm_buggy_from_clean(X_buggy, X_clean, Y_clean):
                 j -= 1
                 break
             j += 1
-        i += 1
+    print('removing', i, 'buggy done!')
+    i += 1
 
     return X_clean, Y_clean
 
@@ -151,14 +152,14 @@ def main(argv):
 
     # load X Y data for both buggy and clean
     buggyX, buggyY, cleanX, cleanY = loadGumVec(
-        './output/trainset/X_no_test_buggy.csv',
-        './output/trainset/Y_no_test_buggy.csv',
-        './output/trainset/X_no_test_clean.csv',
-        './output/trainset/Y_no_test_clean.csv'
+        './output/trainset/new_buggy/X_no_test_buggy.csv',
+        './output/trainset/new_buggy/Y_no_test_buggy.csv',
+        './output/trainset/new_clean/X_no_test_clean.csv',
+        './output/trainset/new_clean/Y_no_test_clean.csv'
     )
 
     # remove duplicated vectors from clean data set
-    cleanX,  cleanY = rm_dups(cleanX, cleanY)
+    # cleanX,  cleanY = rm_dups(cleanX, cleanY)
     buggyY = np.asarray(buggyY)
     cleanY = np.asarray(cleanY)
 
