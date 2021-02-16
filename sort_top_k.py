@@ -9,15 +9,18 @@ def main(argv):
     train_name = argv[1]
     test_name = argv[2]
     file_path = '/data/jihoshin/' + train_name + '/' + test_name
-    Y_train = pd.read_csv('./output/trainset/Y_' + train_name + '.csv').values
+    Y_train = pd.read_csv('./output/trainset/Y_' + train_name + '.csv',
+                          names=['index','path_BBIC','path_BIC','sha_BBIC','sha_BIC',
+                                 'path_BBFC','path_BFC','sha_BBFC','sha_BFC','key',
+                                 'project','label']).values
     print('Y_train:', len(Y_train))
     test_num = len([name for name in os.listdir(file_path)])
     print('test_num:', test_num)
     for i in range(test_num):
         test_path = file_path + '/test' + str(i)
-        dist_i = pd.read_csv(test_path + '/dist.csv', header=None).values
+        dist_i = pd.read_csv(test_path + '/distance.csv', header=None).values
         test_dict = dict()
-        print('dist_len:', len(dist_i))
+        # print('dist_len:', len(dist_i))
         for j in range(len(dist_i)):
             test_dict[str(j)] = dist_i[j]
         sorted_test = sorted(test_dict.items(), key=lambda item: item[1])
