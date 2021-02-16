@@ -10,9 +10,9 @@ def main(argv):
     test_name = argv[2]
     file_path = '/data/jihoshin/' + train_name + '/' + test_name
     Y_train = pd.read_csv('./output/trainset/Y_' + train_name + '.csv',
-                          names=['index','path_BBIC','path_BIC','sha_BBIC','sha_BIC',
-                                 'path_BBFC','path_BFC','sha_BBFC','sha_BFC','key',
-                                 'project','label']).values
+                          names=['index', 'path_BBIC', 'path_BIC', 'sha_BBIC', 'sha_BIC',
+                                 'path_BBFC', 'path_BFC', 'sha_BBFC', 'sha_BFC', 'key',
+                                 'project', 'label']).values
     print('Y_train:', len(Y_train))
     test_num = len([name for name in os.listdir(file_path)])
     print('test_num:', test_num)

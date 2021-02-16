@@ -1,5 +1,3 @@
-import csv
-import numpy as np
 import os
 import pandas as pd
 import sys
@@ -17,21 +15,43 @@ def main(argv):
     sort_i_1000 = pd.read_csv(test_path + '/sorted.csv',
                               names=['distance', 'index', 'label'])
 
+    len_list = []
+    for i in range(100):
+        len_list.append(i)
+
     buggy_df = sort_i_1000[sort_i_1000['label'] == 1]
     clean_df = sort_i_1000[sort_i_1000['label'] == 0]
 
-    bug_len_list = []
-    clean_len_list = []
-    for i in range(len(buggy_df)):
-        bug_len_list.append(i)
-    for i in range(len(clean_df)):
-        clean_len_list.append(i)
+    quo_b, mod_b = divmod(len(buggy_df), 100)
+    quo_c, mod_c = divmod(len(clean_df), 100)
 
-    print('bug_len:', len(bug_len_list))
-    print('clean_len:', len(clean_len_list))
+    print(quo_b, mod_b)
+    print(quo_c, mod_c)
 
-    plt.plot(bug_len_list, buggy_df['distance'].tolist(), label='buggy')
-    plt.plot(clean_len_list, clean_df['distance'].tolist(), label='clean')
+    bug_100 = []
+    i = 1
+    while i <= 100:
+        j = 1
+        avg_temp = 0
+        while j <= quo_b:
+            avg_temp += buggy_df.iloc[i * quo_b]['distance']
+            j += 1
+        bug_100.append(avg_temp / (j - 1))
+        i += 1
+
+    clean_100 = []
+    i = 1
+    while i <= 100:
+        j = 1
+        avg_temp = 0
+        while j <= quo_c:
+            avg_temp += clean_df.iloc[i * quo_c]['distance']
+            j += 1
+        clean_100.append(avg_temp / (j - 1))
+        i += 1
+
+    plt.plot(len_list, bug_100, label='buggy')
+    plt.plot(len_list, clean_100, label='clean')
     plt.xlabel('sorted_index')
     plt.ylabel('distance')
 
