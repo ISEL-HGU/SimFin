@@ -7,14 +7,12 @@ import logging
 import numpy as np
 import pandas as pd
 import pickle
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import MinMaxScaler
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.preprocessing import MinMaxScaler
 import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-K_NEIGHBORS = 1
-
-np.set_printoptions(threshold=np.inf)
+# np.set_printoptions(threshold=np.inf)
 
 logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(message)s',
@@ -77,52 +75,52 @@ def write_test_result(out_file, testX, classifier):
     return
 
 
-def write_result(trainY, testY, out_file, testX, classifier):
-    kneibors = classifier.kneighbors(testX)
+# def write_result(trainY, testY, out_file, testX, classifier):
+#     kneibors = classifier.kneighbors(testX)
 
-    with open(out_file, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile, delimiter=',')
+#     with open(out_file, 'w', newline='') as csvfile:
+#         csv_writer = csv.writer(csvfile, delimiter=',')
 
-        # writing header
-        header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
-                  'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
-                  'Rank', 'Sim-Score', 'Label', 'Project',
-                  'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
-                  'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
+#         # writing header
+#         header = ['Y_BIC_SHA', 'Y_BIC_Path', 'Y_BIC_Hunk',
+#                   'Y_BFC_SHA', 'Y_BFC_Path', 'Y_BFC_Hunk',
+#                   'Rank', 'Sim-Score', 'Label', 'Project',
+#                   'Y^_BIC_SHA', 'Y^_BIC_Path', 'Y^_BIC_Hunk',
+#                   'Y^_BFC_SHA', 'Y^_BFC_Path', 'Y^_BFC_Hunk']
 
-        csv_writer.writerow(header)
+#         csv_writer.writerow(header)
 
-        # writing each row values (test * (predicted * k_keighbors))
-        for i in range(len(testY)):
-            # writing real answer (y)
-            y_bic_sha = str(testY[i][3])
-            y_bic_path = str(testY[i][1])
-            y_bfc_sha = str(testY[i][7])
-            y_bfc_path = str(testY[i][5])
-            y_real_label = testY[i][10]
+#         # writing each row values (test * (predicted * k_keighbors))
+#         for i in range(len(testY)):
+#             # writing real answer (y)
+#             y_bic_sha = str(testY[i][3])
+#             y_bic_path = str(testY[i][1])
+#             y_bfc_sha = str(testY[i][7])
+#             y_bfc_path = str(testY[i][5])
+#             y_real_label = testY[i][10]
 
-            y_bic_hunk = '-'
-            y_bfc_hunk = '-'
+#             y_bic_hunk = '-'
+#             y_bfc_hunk = '-'
 
-            # writing predicted answers (y^)
-            for j in range(K_NEIGHBORS):
-                pred_idx = kneibors[1][i][j]
-                yhat_project = trainY[pred_idx][9]
-                yhat_bic_sha = str(trainY[pred_idx][3])
-                yhat_bic_path = str(trainY[pred_idx][1])
-                yhat_bfc_sha = str(trainY[pred_idx][7])
-                yhat_bfc_path = str(trainY[pred_idx][5])
+#             # writing predicted answers (y^)
+#             for j in range(K_NEIGHBORS):
+#                 pred_idx = kneibors[1][i][j]
+#                 yhat_project = trainY[pred_idx][9]
+#                 yhat_bic_sha = str(trainY[pred_idx][3])
+#                 yhat_bic_path = str(trainY[pred_idx][1])
+#                 yhat_bfc_sha = str(trainY[pred_idx][7])
+#                 yhat_bfc_path = str(trainY[pred_idx][5])
 
-                yhat_bic_hunk = '-'
-                yhat_bfc_hunk = '-'
+#                 yhat_bic_hunk = '-'
+#                 yhat_bfc_hunk = '-'
 
-                instance = [y_bic_sha, y_bic_path, y_bic_hunk,
-                            y_bfc_sha, y_bfc_path, y_bfc_hunk,
-                            j + 1, kneibors[0][i][j], y_real_label, yhat_project,
-                            yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
-                            yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
+#                 instance = [y_bic_sha, y_bic_path, y_bic_hunk,
+#                             y_bfc_sha, y_bfc_path, y_bfc_hunk,
+#                             j + 1, kneibors[0][i][j], y_real_label, yhat_project,
+#                             yhat_bic_sha, yhat_bic_path, yhat_bic_hunk,
+#                             yhat_bfc_sha, yhat_bfc_path, yhat_bfc_hunk]
 
-                csv_writer.writerow(instance)
+#                 csv_writer.writerow(instance)
 
 
 
@@ -185,13 +183,12 @@ def load_pickle(filePath):
 
 
 def main(argv):
-    global K_NEIGHBORS
     train_name = 'no_input_for_train'
     test_name = 'no_input_for_test'
-    seed = 0
+    version_name = 'no_version_name'
 
     try:
-        opts, args = getopt.getopt(argv[1:], "ht:k:p:s:", ["help", "train", "k_neighbors", "predict", "seed"])
+        opts, args = getopt.getopt(argv[1:], "ht:p:v:", ["help", "train", "predict", "version"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -202,12 +199,10 @@ def main(argv):
             sys.exit()
         elif o in ("-t", "--train"):
             train_name = a
-        elif o in ("-k", "--k_neighbors"):
-            K_NEIGHBORS = int(a)
         elif o in ("-p", "--predict"):
             test_name = a
-        elif o in ("-s", "--seed"):
-            seed = a
+        elif o in ("-v", "--version"):
+            version_name = a
         else:
             assert False, "unhandled option"
 
@@ -219,7 +214,7 @@ def main(argv):
     testX = load_gumvecs(
         './output/testset/X_' + test_name + '.csv',
     )
-    
+
     ##########################################################################
     # Model Preparation
 
@@ -232,11 +227,11 @@ def main(argv):
     # Model Evaluation
 
     # 3. load AED model
-    encoder = load_model('./output/models/' + train_name + str(seed) + '_encoder.model', compile=False)
+    encoder = load_model('./output/models/' + train_name + '3_encoder.model', compile=False)
 
     # 4. encode test set and write them in view_file
     X_test_encoded = encoder.predict(X_test)
-    vecs_on_csv('./output/view_file/' + test_name + '_encoded.csv', X_test_encoded)
+    vecs_on_csv('./output/view_file/' + test_name + '_' + version_name +'_encoded.csv', X_test_encoded)
 
     # 5. apply kNN model
     # knn = KNeighborsClassifier(n_neighbors=K_NEIGHBORS,
@@ -254,7 +249,7 @@ def main(argv):
     #              X_test_encoded,
     #              knn)
 
-    print('loaded and predicted ' + test_name + '_' + train_name + '_' + str(seed) + '_result.csv complete!')
+    print('loaded and predicted ' + test_name + '_' + train_name + '_result.csv complete!')
 
 
 if __name__ == '__main__':
