@@ -116,7 +116,6 @@ def write_result(trainY, testY, out_file, testX, classifier):
                 csv_writer.writerow(instance)
 
 
-
 def loadGumVec(train_file, train_label, test_file, test_label):
     f_trainX = open(train_file, 'r')
     trainX = csv.reader(f_trainX)

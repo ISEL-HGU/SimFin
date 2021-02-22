@@ -4,6 +4,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
+# python3 ./SimFin/inspection.py preprocessed/sentry 0 clean
 def main(argv):
     test_name = argv[1]
     test_index = argv[2]
