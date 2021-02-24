@@ -18,7 +18,7 @@ def main(argv):
     print('test_num:', test_num)
     for i in range(test_num):
         test_path = file_path + '/test' + str(i)
-        dist_i = pd.read_csv(test_path + '/distance.csv', header=None).values
+        dist_i = pd.read_csv(test_path + '/dist.csv', header=None).values
         test_dict = dict()
         # print('dist_len:', len(dist_i))
         for j in range(len(dist_i)):

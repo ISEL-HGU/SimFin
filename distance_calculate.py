@@ -72,7 +72,7 @@ def load_gumvecs(test_file):
 
 def get_distance(file, X_train, X_test):
     # i = trainX, j = testX
-    for i in range(25610, len(X_test)):
+    for i in range(len(X_test)):
         path = file + 'test' + str(i)
         # make folder for every test instance ex. /test0/
         if not os.path.isdir(path):
