@@ -2,6 +2,18 @@
 
 Take the change vectors and their labels to apply auto encoder-decoder for semantic representation and with the encoded vectors, we apply distance calculation from the train set and the test set.
 
+## Version Information
+*pithon* : `3`  
+*tensorflow* : `1.14`  
+*keras* : `2.2.5`  
+
+- How to install library
+<pre><code>$ pip3 install tensorflow==1.14
+$ pip3 install keras==2.2.5
+$ pip3 install pandas
+$ pip3 install sklearn</pre></code>
+
+
 ## Order of Scenario
 1. save_light.py (train auto-encoder)
     a. description: takes only the train set data and makes scaler, auto-encoder model. Saves the scaler, model, encoded_trainset into files.
